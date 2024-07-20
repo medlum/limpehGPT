@@ -1,6 +1,6 @@
 import streamlit as st
 from langchain.chains.conversation.memory import ConversationBufferMemory
-from langchain.agents import AgentExecutor
+from langchain.agents import AgentExecutor, create_react_agent
 from langchain_community.chat_message_histories import StreamlitChatMessageHistory
 from utils import *
 from langchain.document_loaders import PyPDFLoader
@@ -14,6 +14,7 @@ from langchain.vectorstores import DocArrayInMemorySearch
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from huggingface_hub.utils._errors import HfHubHTTPError
 from huggingface_hub.errors import OverloadedError
+from langchain_huggingface import HuggingFaceEndpoint
 
 st.set_page_config(page_title="LimPehGPT: Chat with search", page_icon="🧔")
 container = st.container(border=True)
@@ -50,9 +51,9 @@ with st.sidebar:
     huggingfacehub_api_token = st.text_input(
         "Hugging Face Access Token", type="password")
 
-    # if not huggingfacehub_api_token:
-    #    st.info("Please add your HuggingFace access token to continue.")
-    #    st.stop()
+    if not huggingfacehub_api_token:
+        st.info("Please add your HuggingFace access token to continue.")
+        st.stop()
 
     st.button("Clear message history", on_click=clear_history)
 
@@ -62,6 +63,20 @@ with st.sidebar:
 
     with st.expander('About the chatbot'):
         st.write(text % url)
+
+
+model_mistral8B = 'mistralai/Mixtral-8x7B-Instruct-v0.1'
+llm = HuggingFaceEndpoint(
+    repo_id=model_mistral8B,
+    max_new_tokens=500,
+    do_sample=False,
+    temperature=0.1,
+    repetition_penalty=1.1,
+    return_full_text=False,
+    top_p=0.2,
+    top_k=40,
+    huggingfacehub_api_token=huggingfacehub_api_token
+)
 
 # If no files are uploaded, llm will be used for agent tools.
 if not uploaded_files:
