@@ -113,3 +113,5 @@ watchdog==4.0.1
 wcwidth==0.2.13
 wikipedia==1.4.0
 yarl==1.9.4
+docarray
+pypdf
