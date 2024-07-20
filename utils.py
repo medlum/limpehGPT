@@ -1,9 +1,7 @@
 import streamlit as st
-from langchain_huggingface import HuggingFaceEndpoint
 from langchain_community.tools import DuckDuckGoSearchRun
-from langchain.agents import create_react_agent, Tool
+from langchain.agents import Tool
 import requests
-import time
 from bs4 import BeautifulSoup
 from langchain.tools import StructuredTool
 from langchain_core.prompts import (PromptTemplate, MessagesPlaceholder)
@@ -21,18 +19,6 @@ To get started, head to HuggingFace to obtain an access token.\n
 For more information: [HuggingFace Token Documentation](%s).
 """
 
-
-model_mistral8B = 'mistralai/Mixtral-8x7B-Instruct-v0.1'
-llm = HuggingFaceEndpoint(
-    repo_id=model_mistral8B,
-    max_new_tokens=500,
-    do_sample=False,
-    temperature=0.1,
-    repetition_penalty=1.1,
-    return_full_text=False,
-    top_p=0.2,
-    top_k=40,
-)
 
 template = """You are SearchGPT, a professional search engine who provides 
 informative answers to users. Answer the following questions as best you can.
@@ -104,3 +90,4 @@ footer_html = """<div style='text-align: center;'>
 <p style="font-size:70%;">Developed with ❤️ by Andy Oh</p>
 <p style="font-size:70%;">Ngee Ann Polytechnic</p>
 </div>"""
+
