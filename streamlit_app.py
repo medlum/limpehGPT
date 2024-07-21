@@ -15,10 +15,13 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from huggingface_hub.utils._errors import HfHubHTTPError
 from huggingface_hub.errors import OverloadedError
 from langchain_huggingface import HuggingFaceEndpoint
+import requests
+from streamlit_lottie import st_lottie
 
 st.set_page_config(page_title="LimPehGPT: Chat with search", page_icon="🧔")
-container = st.container(border=True)
-container.title("🧔 LimPehGPT  ")
+# container = st.container(border=True)
+# container.title("🧔 LimPehGPT  ")
+st.header("LimPehGPT")
 
 # ---- set up history for chat and document messages ----#
 chat_msgs = StreamlitChatMessageHistory(key="special_app_key")
@@ -35,7 +38,7 @@ if len(chat_msgs.messages) == 0:
     chat_msgs.add_ai_message(
         "How can I help you?")
 
-# callback function for clear history button
+# --- callback function for clear history button ----#
 
 
 def clear_history():
@@ -43,17 +46,44 @@ def clear_history():
     doc_msgs.clear()
 
 
+# ---- lottie files ---- #
+url = "https://lottie.host/e65b22b6-ac0d-4860-931b-cfce78f42ea6/EddEjMUCyu.json"
+url = requests.get(url)
+url_json = dict()
+
+if url.status_code == 200:
+    url_json = url.json()
+else:
+    print("Error in the URL")
+st_lottie(url_json,
+          # change the direction of our animation
+          reverse=True,
+          # height and width of animation
+          height=80,
+          width=80,
+          # speed of animation
+          speed=1,
+          # means the animation will run forever like a gif, and not as a still image
+          loop=True,
+          # quality of elements used in the animation, other values are "low" and "medium"
+          quality='high',
+          # THis is just to uniquely identify the animation
+          key='bot'
+          )
+
+
 # Enable chat agent and conversational memory with upload_files = False
 uploaded_files = False
 
 # Create widgets for sidebar
 with st.sidebar:
-    huggingfacehub_api_token = st.text_input(
-        "Hugging Face Access Token", type="password")
 
-    if not huggingfacehub_api_token:
-        st.info("Please add your HuggingFace access token to continue.")
-        st.stop()
+    # huggingfacehub_api_token = st.text_input(
+    #    "Hugging Face Access Token", type="password")
+    #
+    # if not huggingfacehub_api_token:
+    #    st.info("Please add your HuggingFace access token to continue.")
+    #    st.stop()
 
     st.button("Clear message history", on_click=clear_history)
 
@@ -75,7 +105,7 @@ llm = HuggingFaceEndpoint(
     return_full_text=False,
     top_p=0.2,
     top_k=40,
-    huggingfacehub_api_token=huggingfacehub_api_token
+    huggingfacehub_api_token=st.secrets["huggingfacehub_api_token"]
 )
 
 # If no files are uploaded, llm will be used for agent tools.
