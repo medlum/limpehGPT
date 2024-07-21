@@ -1,4 +1,3 @@
-import streamlit as st
 from langchain_community.tools import DuckDuckGoSearchRun
 from langchain.agents import Tool
 import requests
@@ -9,14 +8,12 @@ from langchain_community.chat_message_histories import StreamlitChatMessageHisto
 
 
 url = "https://huggingface.co/docs/hub/en/security-tokens"
-text = """LimPeh is an all-round AI chatbot built with LangChain and Streamlit. Just to name a few of its capabilities:\n
+text = """WoofWoofGPT is an all-round AI chatdog built with LangChain and Streamlit. Just to name a few of its capabilities:\n
 - Document Question Answering with PDF files.\n
 - Latest information using agentic tools.\n
 - Summarise and generate new text.\n
 - Assist in coding.\n
 It is powered by :blue[Mixtral 8x7B language model] and :blue[HuggingFace's inference endpoint].\n
-To get started, head to HuggingFace to obtain an access token.\n
-For more information: [HuggingFace Token Documentation](%s).
 """
 
 
@@ -90,4 +87,3 @@ footer_html = """<div style='text-align: center;'>
 <p style="font-size:70%;">Developed with ❤️ by Andy Oh</p>
 <p style="font-size:70%;">Ngee Ann Polytechnic</p>
 </div>"""
-
