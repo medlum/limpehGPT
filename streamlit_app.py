@@ -18,8 +18,7 @@ from langchain_huggingface import HuggingFaceEndpoint
 import requests
 from streamlit_lottie import st_lottie
 
-st.set_page_config(page_title="WoofWoofGPT: Chatdog", page_icon="🐶")
-# container = st.container(border=True)
+st.set_page_config(page_title="Cosmo the ChatDog", page_icon="🐶")
 
 # ---- set up history for chat and document messages ----#
 chat_msgs = StreamlitChatMessageHistory(key="special_app_key")
@@ -53,23 +52,26 @@ if url.status_code == 200:
     url_json = url.json()
 else:
     print("Error in the URL")
-st_lottie(url_json,
-          # change the direction of our animation
-          reverse=True,
-          # height and width of animation
-          height=120,
-          width=120,
-          # speed of animation
-          speed=1,
-          # means the animation will run forever like a gif, and not as a still image
-          loop=True,
-          # quality of elements used in the animation, other values are "low" and "medium"
-          quality='high',
-          # THis is just to uniquely identify the animation
-          key='bot'
-          )
 
-
+col1, col2 = st.columns(spec=[10, 60], vertical_alignment="center")
+with col1:
+    st_lottie(url_json,
+              # change the direction of our animation
+              reverse=True,
+              # height and width of animation
+              height=120,
+              width=120,
+              # speed of animation
+              speed=1,
+              # means the animation will run forever like a gif, and not as a still image
+              loop=True,
+              # quality of elements used in the animation, other values are "low" and "medium"
+              quality='high',
+              # THis is just to uniquely identify the animation
+              key='bot'
+              )
+with col2:
+    st.subheader("**:grey[Cosmo, the Chat Dog]**")
 # Enable chat agent and conversational memory with upload_files = False
 uploaded_files = False
 
@@ -82,15 +84,14 @@ with st.sidebar:
     # if not huggingfacehub_api_token:
     #    st.info("Please add your HuggingFace access token to continue.")
     #    st.stop()
-
-    st.button("Clear message history", on_click=clear_history)
-
-    if st.toggle("Activate file uploader"):
+    with st.expander('About 🐶 WoofWoofGPT'):
+        st.write(text)
+    if st.toggle(":blue[Activate File Uploader]"):
         uploaded_files = st.file_uploader(
             label='Upload PDF file', type=["pdf"], accept_multiple_files=True, on_change=doc_msgs.clear)
 
-    with st.expander('About WoofWoofGPT'):
-        st.write(text)
+    st.button("🧹 Clear Chat Messages",
+              on_click=clear_history)
 
 
 model_mistral8B = 'mistralai/Mixtral-8x7B-Instruct-v0.1'
@@ -136,7 +137,7 @@ if not uploaded_files:
         st.chat_message("human").write(prompt)
 
         try:
-            with st.spinner("Thinking..."):
+            with st.spinner("Grrrr..."):
                 response = executor.invoke({'input': prompt})
                 response = response['output'].replace('</s>', '')
 
@@ -205,7 +206,7 @@ if uploaded_files:
         st.chat_message("user").write(user_query)
 
         try:
-            with st.spinner("Thinking..."):
+            with st.spinner("Grrrr..."):
                 response = qa_chain.run(user_query)
 
             def stream_data():
@@ -222,3 +223,4 @@ if uploaded_files:
             st.write(model_error_message)
 
 st.sidebar.write(footer_html, unsafe_allow_html=True)
+
