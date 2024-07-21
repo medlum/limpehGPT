@@ -18,10 +18,8 @@ from langchain_huggingface import HuggingFaceEndpoint
 import requests
 from streamlit_lottie import st_lottie
 
-st.set_page_config(page_title="LimPehGPT: Chat with search", page_icon="🧔")
+st.set_page_config(page_title="WoofWoofGPT: Chatdog", page_icon="🐶")
 # container = st.container(border=True)
-# container.title("🧔 LimPehGPT  ")
-st.header("LimPehGPT")
 
 # ---- set up history for chat and document messages ----#
 chat_msgs = StreamlitChatMessageHistory(key="special_app_key")
@@ -47,10 +45,10 @@ def clear_history():
 
 
 # ---- lottie files ---- #
-url = "https://lottie.host/e65b22b6-ac0d-4860-931b-cfce78f42ea6/EddEjMUCyu.json"
+url = "https://lottie.host/4ef3b238-96dd-4078-992a-50f5a41d255c/mTUUT5AegN.json"
 url = requests.get(url)
-url_json = dict()
 
+url_json = dict()
 if url.status_code == 200:
     url_json = url.json()
 else:
@@ -59,8 +57,8 @@ st_lottie(url_json,
           # change the direction of our animation
           reverse=True,
           # height and width of animation
-          height=80,
-          width=80,
+          height=120,
+          width=120,
           # speed of animation
           speed=1,
           # means the animation will run forever like a gif, and not as a still image
@@ -91,8 +89,8 @@ with st.sidebar:
         uploaded_files = st.file_uploader(
             label='Upload PDF file', type=["pdf"], accept_multiple_files=True, on_change=doc_msgs.clear)
 
-    with st.expander('About the chatbot'):
-        st.write(text % url)
+    with st.expander('About WoofWoofGPT'):
+        st.write(text)
 
 
 model_mistral8B = 'mistralai/Mixtral-8x7B-Instruct-v0.1'
