@@ -72,7 +72,7 @@ search = DuckDuckGoSearchRun()
 search_tool = Tool(
     name="DuckDuckGo",
     func=search.run,
-    description="useful for when you need to answer questions about most current events including places, news and person",
+    description="use this functionn to answer questions about most current events including places, news and person",
 )
 
 
@@ -89,7 +89,7 @@ def price(ticker: str) -> str:
 price_tool = StructuredTool.from_function(
     func=price,
     name='yfinance',
-    description="useful for when you need to answer questions on stock or share prices"
+    description="useful for when you need to answer questions on stock or share prices of companies"
 )
 
 
@@ -109,11 +109,28 @@ def chart(ticker: str):
 linechart_tool = StructuredTool.from_function(
     func=chart,
     name='linechart',
-    description="useful for graphical visualization of trend line and line chart on stock prices"
+    description="useful for graphical visualization of trend line and line chart on stock prices of a company"
 )
 
 
-tools = [search_tool, news_tool, price_tool, linechart_tool]
+def financialInfo(ticker: str):
+    pattern = r'\b(?:\d[A-Z]{2}\.[A-Z]{2}|[A-Z]+)\b'
+    matches = re.findall(pattern, ticker)
+    ticker = ''.join(matches)
+    symbol = yf.Ticker(ticker)
+    data = ""
+    for key, value in symbol.info.items():
+        data += f"{key} : {value}\n"
+    return data
+
+
+finInfo_tool = StructuredTool.from_function(
+    func=financialInfo,
+    name='financial_metrics',
+    description="use this function to find the financial metrics, ratio and value of a stock or company"
+)
+
+tools = [search_tool, news_tool, price_tool, linechart_tool, finInfo_tool]
 
 agent_kwargs = {
     "extra_prompt_messages": [MessagesPlaceholder(variable_name="chat_history")],
