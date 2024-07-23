@@ -5,8 +5,12 @@ from bs4 import BeautifulSoup
 from langchain.tools import StructuredTool
 from langchain_core.prompts import (PromptTemplate, MessagesPlaceholder)
 from langchain_community.chat_message_histories import StreamlitChatMessageHistory
-
-
+from langchain_community.agent_toolkits.polygon.toolkit import PolygonToolkit
+from langchain_community.utilities.polygon import PolygonAPIWrapper
+import yfinance as yf
+import re
+import altair as alt
+import streamlit as st
 url = "https://huggingface.co/docs/hub/en/security-tokens"
 text = """🐶 is an all-round AI chatdog built with LangChain and Streamlit. Some of its woofwoof capabilities:\n
 - Document Question Answering\n
@@ -58,10 +62,10 @@ def CNAheadlines(genre='singapore'):
         return "No response from news provider."
 
 
-news = StructuredTool.from_function(
+news_tool = StructuredTool.from_function(
     func=CNAheadlines,
     name="CNA_headlines",
-    description="use this function to provide news headlines on the world, business and singapore."
+    description="use this function to provide breaking news, headlines on the world, business and singapore."
 )
 
 search = DuckDuckGoSearchRun()
@@ -71,7 +75,45 @@ search_tool = Tool(
     description="useful for when you need to answer questions about most current events including places, news and person",
 )
 
-tools = [search_tool, news]
+
+def price(ticker: str) -> str:
+    pattern = r'\b(?:\d[A-Z]{2}\.[A-Z]{2}|[A-Z]+)\b'
+    matches = re.findall(pattern, ticker)
+    ticker = ''.join(matches)
+    print(ticker)
+    tick = yf.Ticker(ticker)
+    price = tick.history(period="5d")
+    return price.to_string()
+
+
+price_tool = StructuredTool.from_function(
+    func=price,
+    name='yfinance',
+    description="useful for when you need to answer questions on stock or share prices"
+)
+
+
+def chart(ticker: str):
+    pattern = r'\b(?:\d[A-Z]{2}\.[A-Z]{2}|[A-Z]+)\b'
+    matches = re.findall(pattern, ticker)
+    ticker = ''.join(matches)
+    data = yf.download(ticker, period='5y')
+    data_closePrice = data['Adj Close']
+    line_chart = alt.Chart(
+        data_closePrice.reset_index()).mark_line(strokeWidth=1).encode(
+            alt.X('Date:T'),
+            alt.Y('Adj Close:Q').scale(zero=False))
+    st.altair_chart(line_chart)
+
+
+linechart_tool = StructuredTool.from_function(
+    func=chart,
+    name='linechart',
+    description="useful for graphical visualization of trend line on stock prices"
+)
+
+
+tools = [search_tool, news_tool, price_tool, linechart_tool]
 
 agent_kwargs = {
     "extra_prompt_messages": [MessagesPlaceholder(variable_name="chat_history")],
@@ -88,4 +130,3 @@ footer_html = """<div style='text-align: center;'>
 <p style="font-size:70%;">Developed with 💗 by Andy Oh</p>
 <p style="font-size:70%;">Ngee Ann Polytechnic</p>
 </div>"""
-
