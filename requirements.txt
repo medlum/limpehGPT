@@ -116,3 +116,5 @@ yarl==1.9.4
 docarray
 pypdf
 streamlit_lottie
+pyowm
+yfinance 
