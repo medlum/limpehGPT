@@ -22,12 +22,8 @@ from langchain_community.agent_toolkits.polygon.toolkit import PolygonTickerNews
 from langchain_community.utilities.polygon import PolygonAPIWrapper
 from langchain_community.utilities import OpenWeatherMapAPIWrapper
 
-# os.environ["OPENWEATHERMAP_API_KEY"] = st.secrets["openweather_api"]
-# weather = OpenWeatherMapAPIWrapper()
-# weather_data = weather.run("London,GB")
-# st.write(weather_data)
-
-st.set_page_config(page_title="Cosmo the ChatDog", page_icon="🐶")
+st.set_page_config(page_title="Cosmo the ChatDog",
+                   layout="wide", page_icon="🐶")
 
 # ---- set up history for chat and document messages ----#
 chat_msgs = StreamlitChatMessageHistory(key="special_app_key")
@@ -142,7 +138,7 @@ if not uploaded_files:
         st.chat_message(msg.type).write(
             msg.content.replace('</s>', ''))
 
-    if prompt := st.chat_input("Breaking news in Singapore?"):
+    if prompt := st.chat_input("Breaking news in Singapore..."):
         st.chat_message("human").write(prompt)
 
         try:
@@ -211,7 +207,7 @@ if uploaded_files:
         st.chat_message(avatars[msg.type]).write(
             msg.content.replace('</s>', ''))
 
-    if user_query := st.chat_input(placeholder="Ask me about the document."):
+    if user_query := st.chat_input(placeholder="Ask me about the document..."):
         st.chat_message("user").write(user_query)
 
         try:
