@@ -100,16 +100,16 @@ def chart(ticker: str):
     data = yf.download(ticker, period='5y')
     data_closePrice = data['Adj Close']
     line_chart = alt.Chart(
-        data_closePrice.reset_index()).mark_line(strokeWidth=1).encode(
+        data_closePrice.reset_index()).mark_line(strokeWidth=0.8).encode(
             alt.X('Date:T'),
-            alt.Y('Adj Close:Q').scale(zero=False))
+            alt.Y('Adj Close:Q').scale(zero=False)).interactive()
     st.altair_chart(line_chart)
 
 
 linechart_tool = StructuredTool.from_function(
     func=chart,
     name='linechart',
-    description="useful for graphical visualization of trend line on stock prices"
+    description="useful for graphical visualization of trend line and line chart on stock prices"
 )
 
 
