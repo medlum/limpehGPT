@@ -118,3 +118,4 @@ pypdf
 streamlit_lottie
 pyowm
 yfinance 
+altair
