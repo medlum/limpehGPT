@@ -15,7 +15,7 @@ url = "https://huggingface.co/docs/hub/en/security-tokens"
 text = """🐶 is an all-round AI chatdog built with LangChain and Streamlit. Some of its woofwoof capabilities:\n
 - Document Question Answering\n
 - Current World Affairs\n
-- News Headlines\n
+- Stock prices and trends\n
 - Summarising and Generating New Text\n
 - Coding Assistance\n
 🐶 is powered by Mixtral 8x7B language model and HuggingFace🤗 inference endpoint.\n
