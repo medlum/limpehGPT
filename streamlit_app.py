@@ -236,3 +236,4 @@ if uploaded_files:
             st.write(model_error_message)
 
 st.sidebar.write(footer_html, unsafe_allow_html=True)
+
