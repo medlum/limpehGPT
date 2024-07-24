@@ -21,6 +21,8 @@ from streamlit_lottie import st_lottie
 from langchain_community.agent_toolkits.polygon.toolkit import PolygonTickerNews
 from langchain_community.utilities.polygon import PolygonAPIWrapper
 from langchain_community.utilities import OpenWeatherMapAPIWrapper
+from st_copy_to_clipboard import st_copy_to_clipboard
+
 
 st.set_page_config(page_title="Cosmo the ChatDog",
                    layout="wide", page_icon="🐶")
@@ -152,6 +154,7 @@ if not uploaded_files:
                     time.sleep(0.1)
 
             st.chat_message("ai").write_stream(stream_data)
+            st_copy_to_clipboard(response)
             # st.chat_message("ai").write(response)
         except HfHubHTTPError as error:
             st.write(endpoint_error_message)
@@ -219,6 +222,7 @@ if uploaded_files:
                     yield word + " "
                     time.sleep(0.1)
             st.chat_message("ai").write_stream(stream_data)
+            st_copy_to_clipboard(response)
             # st.chat_message("ai").write(response)
 
         except HfHubHTTPError as error:
