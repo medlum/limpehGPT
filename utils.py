@@ -15,12 +15,12 @@ import json
 
 url = "https://huggingface.co/docs/hub/en/security-tokens"
 text = """🐶 is an all-round AI chatdog built with LangChain and Streamlit. Some of its woofwoof capabilities:\n
-- Document Question Answering\n
-- Current World Affairs\n
-- Stock Prices and Trendlines\n
-- Weather Forecast in Singapore\n
-- Summarising and Generating New Text\n
-- Coding Assistance\n
+- Document-Question-Answering\n
+- Sinagpore news headlines\n
+- US stock prices and charts\n
+- Singapore weather forecast\n
+- Summarising and generating texts\n
+- Coding assistance\n
 🐶 is powered by Mixtral 8x7B language model and HuggingFace🤗 inference endpoint.\n
 """
 
