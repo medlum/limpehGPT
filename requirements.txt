@@ -119,3 +119,4 @@ streamlit_lottie
 pyowm
 yfinance 
 altair
+st_copy_to_clipboard
