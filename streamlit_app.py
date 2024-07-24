@@ -22,7 +22,7 @@ from langchain_community.agent_toolkits.polygon.toolkit import PolygonTickerNews
 from langchain_community.utilities.polygon import PolygonAPIWrapper
 from langchain_community.utilities import OpenWeatherMapAPIWrapper
 from st_copy_to_clipboard import st_copy_to_clipboard
-
+from duckduckgo_search.exceptions import RatelimitException
 
 st.set_page_config(page_title="Cosmo the ChatDog",
                    layout="wide", page_icon="🐶")
@@ -161,6 +161,10 @@ if not uploaded_files:
 
         except OverloadedError as error:
             st.write(model_error_message)
+
+        except RatelimitException as error:
+            st.write(
+                "DuckDuckGo search has reached its rate limit. Try again...")
 
 
 @st.cache_resource(ttl="1h")
