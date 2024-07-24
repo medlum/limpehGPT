@@ -35,12 +35,22 @@ doc_msgs = StreamlitChatMessageHistory()
 if len(doc_msgs.messages) == 0:
     doc_msgs.clear()
     doc_msgs.add_ai_message(
-        "How can I help you?")
+        "You have uploaded document, how can I help?")
 
 if len(chat_msgs.messages) == 0:
     chat_msgs.clear()
     chat_msgs.add_ai_message(
-        "How can I help you?")
+        """
+        - What are the headlines in Singapore?\n
+        - What is the current Apple stock price?\n
+        - Draw a line chart of Nvidia's stock price.\n
+        - What is the book value of Microsoft?\n
+        - What is the weather forecast for today?\n
+        - What is the weather forecast the next few days?\n
+        - Is it going to rain in the west of Singapore today?\n
+        - Who is the Prime Minister of United Kingdom?
+        """)
+
 
 # --- callback function for clear history button ----#
 
@@ -236,4 +246,5 @@ if uploaded_files:
             st.write(model_error_message)
 
 st.sidebar.write(footer_html, unsafe_allow_html=True)
+
 
