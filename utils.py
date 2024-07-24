@@ -11,18 +11,21 @@ import yfinance as yf
 import re
 import altair as alt
 import streamlit as st
+import json
+
 url = "https://huggingface.co/docs/hub/en/security-tokens"
 text = """🐶 is an all-round AI chatdog built with LangChain and Streamlit. Some of its woofwoof capabilities:\n
 - Document Question Answering\n
 - Current World Affairs\n
-- Stock prices and trends\n
+- Stock Prices and Trendlines\n
+- Weather Forecast in Singapore\n
 - Summarising and Generating New Text\n
 - Coding Assistance\n
 🐶 is powered by Mixtral 8x7B language model and HuggingFace🤗 inference endpoint.\n
 """
 
 
-template = """You are SearchGPT, a professional search engine who provides 
+template = """You are Cosmo the chatdog, a professional search engine who provides 
 informative answers to users. Answer the following questions as best you can.
 You have access to the following tools:
 
@@ -45,6 +48,34 @@ Previous conversation history:
 
 New question: {input}
 {agent_scratchpad}"""
+
+
+def weather4days(url):
+    url = "https://api-open.data.gov.sg/v2/real-time/api/four-day-outlook"
+    res = requests.get(url)
+    data = json.dumps(res.json(), indent=4)
+    return data
+
+
+weather4days_tool = StructuredTool.from_function(
+    func=weather4days,
+    name='nea_api_4days',
+    description="useful for when you need to find out weather outlook in the next 4 days in singapore"
+)
+
+
+def weather24hr(url):
+    url = "https://api-open.data.gov.sg/v2/real-time/api/twenty-four-hr-forecast"
+    res = requests.get(url)
+    data = json.dumps(res.json(), indent=4)
+    return data
+
+
+weather24hr_tool = StructuredTool.from_function(
+    func=weather24hr,
+    name='nea_api_24hr',
+    description="useful for when you need to find out the next 24 hour weather in singapore"
+)
 
 
 def CNAheadlines(genre='singapore'):
@@ -102,14 +133,15 @@ def chart(ticker: str):
     line_chart = alt.Chart(
         data_closePrice.reset_index()).mark_line(strokeWidth=0.8).encode(
             alt.X('Date:T'),
-            alt.Y('Adj Close:Q').scale(zero=False)).interactive()
+            alt.Y('Adj Close:Q',
+                  title='Closing Price').scale(zero=False)).interactive()
     st.altair_chart(line_chart)
 
 
 linechart_tool = StructuredTool.from_function(
     func=chart,
     name='linechart',
-    description="useful for graphical visualization of trend line and line chart on stock prices of a company"
+    description="useful for drawing line chart for graphical visualization on stock prices of a company"
 )
 
 
@@ -130,7 +162,8 @@ finInfo_tool = StructuredTool.from_function(
     description="use this function to find the financial metrics, ratio and value of a stock or company"
 )
 
-tools = [search_tool, news_tool, price_tool, linechart_tool, finInfo_tool]
+tools = [search_tool, news_tool, price_tool,
+         linechart_tool, finInfo_tool, weather24hr_tool, weather4days_tool]
 
 agent_kwargs = {
     "extra_prompt_messages": [MessagesPlaceholder(variable_name="chat_history")],
