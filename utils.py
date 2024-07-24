@@ -103,12 +103,16 @@ search = DuckDuckGoSearchRun()
 search_tool = Tool(
     name="DuckDuckGo",
     func=search.run,
-    description="use this functionn to answer questions about most current events including places, news and person",
+    description="use this function to answer questions about most current events including places, news and person",
 )
+
+pattern = r'[A-Z]+\d+[A-Z]*\.SI|[A-Z]+\b'
 
 
 def price(ticker: str) -> str:
-    pattern = r'\b(?:\d[A-Z]{2}\.[A-Z]{2}|[A-Z]+)\b'
+    """
+    Download stock prices
+    """
     matches = re.findall(pattern, ticker)
     ticker = ''.join(matches)
     print(ticker)
@@ -120,12 +124,14 @@ def price(ticker: str) -> str:
 price_tool = StructuredTool.from_function(
     func=price,
     name='yfinance',
-    description="useful for when you need to answer questions on stock or share prices of companies"
+    description="use this function strictly for finding stock or share prices of companies."
 )
 
 
 def chart(ticker: str):
-    pattern = r'\b(?:\d[A-Z]{2}\.[A-Z]{2}|[A-Z]+)\b'
+    """
+    Download stock price to draw line chart.
+    """
     matches = re.findall(pattern, ticker)
     ticker = ''.join(matches)
     data = yf.download(ticker, period='5y')
@@ -135,18 +141,20 @@ def chart(ticker: str):
             alt.X('Date:T'),
             alt.Y('Adj Close:Q',
                   title='Closing Price').scale(zero=False)).interactive()
-    st.altair_chart(line_chart)
+    return st.altair_chart(line_chart)
 
 
 linechart_tool = StructuredTool.from_function(
     func=chart,
     name='linechart',
-    description="useful for drawing line chart for graphical visualization on stock prices of a company"
+    description="use this function to download prices and draw line chart and trendline on stock or share price of a company. "
 )
 
 
 def financialInfo(ticker: str):
-    pattern = r'\b(?:\d[A-Z]{2}\.[A-Z]{2}|[A-Z]+)\b'
+    """
+    Download company's financial information like EPS, EBITA, Book Value.
+    """
     matches = re.findall(pattern, ticker)
     ticker = ''.join(matches)
     symbol = yf.Ticker(ticker)
@@ -162,7 +170,7 @@ finInfo_tool = StructuredTool.from_function(
     description="use this function to find the financial metrics, ratio and value of a stock or company"
 )
 
-tools = [search_tool, news_tool, price_tool,
+tools = [search_tool, news_tool,
          linechart_tool, finInfo_tool, weather24hr_tool, weather4days_tool]
 
 agent_kwargs = {
