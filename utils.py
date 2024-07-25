@@ -17,9 +17,9 @@ url = "https://huggingface.co/docs/hub/en/security-tokens"
 text = """🐶 is an all-round AI chatdog built with LangChain and Streamlit. Some of its woofwoof capabilities:\n
 - Document-Question-Answering\n
 - Sinagpore news headlines\n
-- US stock prices and charts\n
+- US stock price quotes\n
 - Singapore weather forecast\n
-- Summarising and generating texts\n
+- Summarize/Generate texts\n
 - Coding assistance\n
 🐶 is powered by Mixtral 8x7B language model and HuggingFace🤗 inference endpoint.\n
 """
@@ -109,69 +109,76 @@ search_tool = Tool(
 pattern = r'[A-Z]+\d+[A-Z]*\.SI|[A-Z]+\b'
 
 
-def price(ticker: str) -> str:
+def stockPrice(ticker: str) -> str:
     """
     Download stock prices
     """
     matches = re.findall(pattern, ticker)
     ticker = ''.join(matches)
-    print(ticker)
     tick = yf.Ticker(ticker)
-    price = tick.history(period="5d")
-    return price.to_string()
+    price = tick.history()
+
+    return price
 
 
-price_tool = StructuredTool.from_function(
-    func=price,
+stockPrice_tool = StructuredTool.from_function(
+    func=stockPrice,
     name='yfinance',
     description="use this function strictly for finding stock or share prices of companies."
 )
 
 
-def chart(ticker: str):
+def stockLineChart(ticker: str):
     """
     Download stock price to draw line chart.
     """
     matches = re.findall(pattern, ticker)
     ticker = ''.join(matches)
-    data = yf.download(ticker, period='5y')
-    data_closePrice = data['Adj Close']
+    tick = yf.Ticker(ticker)
+    price = tick.history(period='2y')
+    # data = yf.download(ticker, period='5y')
+    data_closePrice = price['Close']
     line_chart = alt.Chart(
         data_closePrice.reset_index()).mark_line(strokeWidth=0.8).encode(
             alt.X('Date:T'),
-            alt.Y('Adj Close:Q',
+            alt.Y('Close:Q',
                   title='Closing Price').scale(zero=False)).interactive()
     return st.altair_chart(line_chart)
 
 
-linechart_tool = StructuredTool.from_function(
-    func=chart,
+stockLineChart_tool = StructuredTool.from_function(
+    func=stockLineChart,
     name='linechart',
-    description="use this function to download prices and draw line chart and trendline on stock or share price of a company. "
+    description="use this function to find stock price and draw line chart or trendline"
 )
 
 
-def financialInfo(ticker: str):
+def financialIndicators(ticker: str):
     """
     Download company's financial information like EPS, EBITA, Book Value.
     """
     matches = re.findall(pattern, ticker)
     ticker = ''.join(matches)
     symbol = yf.Ticker(ticker)
-    data = ""
+    data = {}
     for key, value in symbol.info.items():
-        data += f"{key} : {value}\n"
+        data[key] = value
     return data
 
 
-finInfo_tool = StructuredTool.from_function(
-    func=financialInfo,
+financialIndicator_tool = StructuredTool.from_function(
+    func=financialIndicators,
     name='financial_metrics',
-    description="use this function to find the financial metrics, ratio and value of a stock or company"
+    description="use this function to download company's financial indicators like price earnings, earnings per share etc"
 )
 
+# remove linechart_tool
 tools = [search_tool, news_tool,
-         linechart_tool, finInfo_tool, weather24hr_tool, weather4days_tool]
+         stockPrice_tool,
+         financialIndicator_tool,
+         stockLineChart_tool,
+         weather24hr_tool,
+         weather4days_tool]
 
 agent_kwargs = {
     "extra_prompt_messages": [MessagesPlaceholder(variable_name="chat_history")],
