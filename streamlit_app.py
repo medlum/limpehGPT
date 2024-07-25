@@ -18,9 +18,6 @@ from langchain_huggingface import HuggingFaceEndpoint
 import requests
 import json
 from streamlit_lottie import st_lottie
-from langchain_community.agent_toolkits.polygon.toolkit import PolygonTickerNews
-from langchain_community.utilities.polygon import PolygonAPIWrapper
-from langchain_community.utilities import OpenWeatherMapAPIWrapper
 from st_copy_to_clipboard import st_copy_to_clipboard
 from duckduckgo_search.exceptions import RatelimitException
 
@@ -39,10 +36,11 @@ if len(doc_msgs.messages) == 0:
 
 if len(chat_msgs.messages) == 0:
     chat_msgs.clear()
-    chat_msgs.add_ai_message(
+    chat_msgs.add_user_message(
         """
-        - Singapore headlines\n
-        - Nvidia's closing price in the past 5 days in a table form\n
+        :blue[Woof woof! I can answer general questions like these:]
+        - Latest headlines in Singapore\n
+        - Closing price of Nvidia's for the past 5 days in a table\n
         - Trendline of Nvidia's stock price\n
         - Earnings per share of Microsoft\n
         - Weather forecast today\n
@@ -83,13 +81,12 @@ with col1:
               loop=True,
               # quality of elements used in the animation, other values are "low" and "medium"
               quality='high',
-              # THis is just to uniquely identify the animation
+              # This is just to uniquely identify the animation
               key='bot'
               )
 with col2:
-    st.subheader("**:grey[I'm Cosmo, the chat dog]**")
+    st.subheader("**:grey[Cosmo, the chat dog]**")
 
-st.write(":blue[I can answer questions like these:]")
 # Enable chat agent and conversational memory with upload_files = False
 uploaded_files = False
 
@@ -247,3 +244,4 @@ if uploaded_files:
             st.write(model_error_message)
 
 st.sidebar.write(footer_html, unsafe_allow_html=True)
+
