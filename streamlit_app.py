@@ -41,14 +41,13 @@ if len(chat_msgs.messages) == 0:
     chat_msgs.clear()
     chat_msgs.add_ai_message(
         """
-        - What are the headlines in Singapore?\n
-        - What is the current Apple stock price?\n
-        - Draw a line chart of Nvidia's stock price.\n
-        - What is the book value of Microsoft?\n
-        - What is the weather forecast for today?\n
-        - What is the weather forecast the next few days?\n
-        - Is it going to rain in the west of Singapore today?\n
-        - Who is the Prime Minister of United Kingdom?
+        - Singapore headlines\n
+        - Nvidia's closing price in the past 5 days in a table form\n
+        - Trendline of Nvidia's stock price\n
+        - Earnings per share of Microsoft\n
+        - Weather forecast today\n
+        - Will it rain in the west of Singapore tomorrow?\n
+        - Prime Minister of United Kingdom
         """)
 
 
@@ -88,7 +87,9 @@ with col1:
               key='bot'
               )
 with col2:
-    st.subheader("**:grey[Cosmo, the Chat Dog]**")
+    st.subheader("**:grey[I'm Cosmo, the chat dog]**")
+
+st.write(":blue[I can answer questions like these:]")
 # Enable chat agent and conversational memory with upload_files = False
 uploaded_files = False
 
@@ -150,13 +151,13 @@ if not uploaded_files:
         st.chat_message(msg.type).write(
             msg.content.replace('</s>', ''))
 
-    if prompt := st.chat_input("Breaking news in Singapore..."):
+    if prompt := st.chat_input("Ask me a question..."):
         st.chat_message("human").write(prompt)
 
         try:
             with st.spinner("Grrrr..."):
                 response = executor.invoke({'input': prompt})
-                response = response['output'].replace('</s>', '')
+                response = str(response['output'].replace('</s>', ''))
 
             def stream_data():
                 for word in response.split(" "):
@@ -246,5 +247,3 @@ if uploaded_files:
             st.write(model_error_message)
 
 st.sidebar.write(footer_html, unsafe_allow_html=True)
-
-
