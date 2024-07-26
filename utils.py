@@ -12,6 +12,7 @@ import re
 import altair as alt
 import streamlit as st
 import json
+import datetime
 
 url = "https://huggingface.co/docs/hub/en/security-tokens"
 text = """🐶 is an all-round AI chatdog built with LangChain and Streamlit. Some of its woofwoof capabilities:\n
@@ -25,7 +26,7 @@ text = """🐶 is an all-round AI chatdog built with LangChain and Streamlit. So
 """
 
 
-template = """You are Cosmo the chatdog, a professional search engine who provides 
+template = """You are Cosmo the chatdog, a professional search engine who provides
 informative answers to users. Answer the following questions as best you can.
 You have access to the following tools:
 
@@ -51,8 +52,8 @@ New question: {input}
 
 
 options = ("What are the top headlines in Singapore?",
-           "Closing price of Nvidia's in the past 5 days",
-           "Line chart of Nvidia's stock price",
+           "Nvidia's closing price yesterday",
+           "Draw a line chart of Nvidia's stock price",
            "Top 5 financial metrics of Nvidia",
            "How is the weather today?",
            "Weather forecast in the next few days",
@@ -188,14 +189,15 @@ tools = [search_tool, news_tool,
          financialIndicator_tool,
          stockLineChart_tool,
          weather24hr_tool,
-         weather4days_tool]
+         weather4days_tool
+         ]
 
 agent_kwargs = {
     "extra_prompt_messages": [MessagesPlaceholder(variable_name="chat_history")],
 }
 
 PROMPT = PromptTemplate(input_variables=[
-                        "chat_history", "input", "agent_scratchpad"], template=template)
+    "chat_history", "input", "agent_scratchpad"], template=template)
 
 endpoint_error_message = "I'm sorry, HuggingFace endpoint has too many requests now. Please try again later."
 model_error_message = "I'm sorry, the AI model is overloaded at the endpoint. Please try again later."
@@ -217,3 +219,4 @@ footer_html = """<div style='text-align: center;'>
 #    - Will it rain in the west of Singapore tomorrow?\n
 #    - Prime Minister of United Kingdom
 #    """)
+
