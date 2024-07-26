@@ -21,6 +21,7 @@ from streamlit_lottie import st_lottie
 from st_copy_to_clipboard import st_copy_to_clipboard
 from duckduckgo_search.exceptions import RatelimitException
 
+
 st.set_page_config(page_title="Cosmo the ChatDog",
                    layout="wide", page_icon="🐶")
 
@@ -36,25 +37,37 @@ if len(doc_msgs.messages) == 0:
 
 if len(chat_msgs.messages) == 0:
     chat_msgs.clear()
-    chat_msgs.add_user_message(
+    chat_msgs.add_ai_message(
         """
-        :blue[Woof woof! I can answer general questions like these:]
-        - Latest headlines in Singapore\n
-        - Closing price of Nvidia's for the past 5 days in a table\n
-        - Trendline of Nvidia's stock price\n
-        - Earnings per share of Microsoft\n
-        - Weather forecast today\n
-        - Will it rain in the west of Singapore tomorrow?\n
-        - Prime Minister of United Kingdom
-        """)
+       :blue[Woof! Ask me a question or choose one from the sidebar!]
+      
+       """)
 
 
 # --- callback function for clear history button ----#
 
-
 def clear_history():
     chat_msgs.clear()
     doc_msgs.clear()
+    st.session_state.selection = None
+
+# --- callback function to clear selectbox for sample questions ----#
+
+
+def clear_selectbox():
+    st.session_state.selection = None
+
+
+# set selectbox disabled param --> disabled=st.session_state.disabled
+if "disabled" not in st.session_state:
+    st.session_state.disabled = False
+
+# --- function disable selecbox sample qn when st.toggle on change ---#
+# reference to on_change in st.toggle
+
+
+def disable_selectbox():
+    st.session_state.disabled = True
 
 
 # ---- lottie files ---- #
@@ -88,25 +101,37 @@ with col2:
     st.subheader("**:grey[Cosmo, the chat dog]**")
 
 # Enable chat agent and conversational memory with upload_files = False
+
+
 uploaded_files = False
 
 # Create widgets for sidebar
 with st.sidebar:
+    # create sample questions
+    prompt = st.selectbox(label="",
+                          options=options,
+                          placeholder="Choose a sample question",
+                          key="selection",
+                          index=None,
+                          disabled=st.session_state.disabled
+                          )
+    st.button("🧹 Clear Chat Messages",
+              on_click=clear_history)
 
+    if st.toggle(":blue[Activate File Uploader]", on_change=disable_selectbox):
+        uploaded_files = st.file_uploader(
+            label='Upload PDF file', type=["pdf"],
+            accept_multiple_files=True,
+            on_change=doc_msgs.clear)
+
+    with st.expander('About 🐶 WoofWoofGPT'):
+        st.write(text)
     # huggingfacehub_api_token = st.text_input(
     #    "Hugging Face Access Token", type="password")
     #
     # if not huggingfacehub_api_token:
     #    st.info("Please add your HuggingFace access token to continue.")
     #    st.stop()
-    with st.expander('About 🐶 WoofWoofGPT'):
-        st.write(text)
-    if st.toggle(":blue[Activate File Uploader]"):
-        uploaded_files = st.file_uploader(
-            label='Upload PDF file', type=["pdf"], accept_multiple_files=True, on_change=doc_msgs.clear)
-
-    st.button("🧹 Clear Chat Messages",
-              on_click=clear_history)
 
 
 model_mistral8B = 'mistralai/Mixtral-8x7B-Instruct-v0.1'
@@ -148,7 +173,7 @@ if not uploaded_files:
         st.chat_message(msg.type).write(
             msg.content.replace('</s>', ''))
 
-    if prompt := st.chat_input("Ask me a question..."):
+    if prompt := st.chat_input("Ask me a question...", on_submit=clear_selectbox) or prompt:
         st.chat_message("human").write(prompt)
 
         try:
@@ -244,4 +269,3 @@ if uploaded_files:
             st.write(model_error_message)
 
 st.sidebar.write(footer_html, unsafe_allow_html=True)
-
