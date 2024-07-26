@@ -118,7 +118,7 @@ with st.sidebar:
     st.button("🧹 Clear Chat Messages",
               on_click=clear_history)
 
-    if st.toggle(":blue[Activate File Uploader]", on_change=disable_selectbox):
+    if st.toggle(":blue[Activate File Uploader]", ):
         uploaded_files = st.file_uploader(
             label='Upload PDF file', type=["pdf"],
             accept_multiple_files=True,
