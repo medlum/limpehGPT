@@ -50,9 +50,9 @@ New question: {input}
 {agent_scratchpad}"""
 
 
-options = ("Latest headlines in Singapore",
+options = ("What are the top headlines in Singapore?",
            "Closing price of Nvidia's in the past 5 days",
-           "Trendline of Nvidia's stock price",
+           "Line chart of Nvidia's stock price",
            "Top 5 financial metrics of Nvidia",
            "How is the weather today?",
            "Weather forecast in the next few days",
