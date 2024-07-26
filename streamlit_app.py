@@ -58,18 +58,6 @@ def clear_selectbox():
     st.session_state.selection = None
 
 
-# set selectbox disabled param --> disabled=st.session_state.disabled
-if "disabled" not in st.session_state:
-    st.session_state.disabled = False
-
-# --- function disable selecbox sample qn when st.toggle on change ---#
-# reference to on_change in st.toggle
-
-
-def disable_selectbox():
-    st.session_state.disabled = True
-
-
 # ---- lottie files ---- #
 url = "https://lottie.host/4ef3b238-96dd-4078-992a-50f5a41d255c/mTUUT5AegN.json"
 url = requests.get(url)
@@ -113,7 +101,6 @@ with st.sidebar:
                           placeholder="Choose a sample question",
                           key="selection",
                           index=None,
-                          disabled=st.session_state.disabled
                           )
     st.button("🧹 Clear Chat Messages",
               on_click=clear_history)
