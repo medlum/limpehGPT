@@ -12,7 +12,7 @@ import re
 import altair as alt
 import streamlit as st
 import json
-import datetime
+from datetime import date
 
 url = "https://huggingface.co/docs/hub/en/security-tokens"
 text = """🐶 is an all-round AI chatdog built with LangChain and Streamlit. Some of its woofwoof capabilities:\n
@@ -27,9 +27,13 @@ text = """🐶 is an all-round AI chatdog built with LangChain and Streamlit. So
 
 
 template = """You are Cosmo the chatdog, a professional search engine who provides
-informative answers to users. Answer the following questions as best you can.
-You have access to the following tools:
+informative answers to users.
+Answer each news headlines in a newline and number them.
+Truncate stock price to 2 decimal places.
+Answer stock price with table when quoting more than 1.
 
+You have access to the following tools:
+Answer the following questions as best you can.
 {tools}
 
 Use the following format:
@@ -52,13 +56,15 @@ New question: {input}
 
 
 options = ("What are the top headlines in Singapore?",
-           "Nvidia's closing price yesterday",
-           "Draw a line chart of Nvidia's stock price",
-           "Top 5 financial metrics of Nvidia",
+           "Nvidia's closing price on the last trading day.",
+           "Nvidia's closing price for the last 5 trading days.",
+           "Draw a line chart of Nvidia's stock price.",
+           "Earnings per share of Nvidia.",
+           "Return on Assets of Nvidia.",
            "How is the weather today?",
-           "Weather forecast in the next few days",
+           "Weather forecast in the next few days.",
            "Will it rain in the west of Singapore tomorrow?",
-           "Who is the Prime Minister of United Kingdom?"
+           "Who is the Prime Minister of United Kingdom?",
            )
 
 
@@ -108,7 +114,7 @@ def CNAheadlines(genre='singapore'):
 news_tool = StructuredTool.from_function(
     func=CNAheadlines,
     name="CNA_headlines",
-    description="use this function to provide breaking news, headlines on the world, business and singapore."
+    description="use this function to provide breaking news, headlines on the world, business and singapore. write each headlines on a newline"
 )
 
 search = DuckDuckGoSearchRun()
@@ -123,19 +129,19 @@ pattern = r'[A-Z]+\d+[A-Z]*\.SI|[A-Z]+\b'
 
 def stockPrice(ticker: str) -> str:
     """
-    Download stock prices
+
     """
     matches = re.findall(pattern, ticker)
     ticker = ''.join(matches)
     tick = yf.Ticker(ticker)
     price = tick.history()
-    return price
+    return price.to_csv()
 
 
 stockPrice_tool = StructuredTool.from_function(
     func=stockPrice,
     name='yfinance',
-    description="use this function strictly for finding stock or share prices of companies."
+    description="use this function to find stock or share prices of companies."
 )
 
 
@@ -183,13 +189,26 @@ financialIndicator_tool = StructuredTool.from_function(
     description="use this function to download company's financial indicators like price earnings, earnings per share etc"
 )
 
+
+def time(text: str) -> str:
+    return str(date.today())
+
+
+time_tool = StructuredTool.from_function(
+    func=time,
+    name='today_date',
+    description="Returns todays date, use this for any questions related to knowing todays date.The input should always be an empty string, and this function will always return todays date - any date mathmatics should occur outside this function."
+)
+
+
 # remove linechart_tool
 tools = [search_tool, news_tool,
          stockPrice_tool,
          financialIndicator_tool,
          stockLineChart_tool,
          weather24hr_tool,
-         weather4days_tool
+         weather4days_tool,
+         time_tool
          ]
 
 agent_kwargs = {
@@ -219,4 +238,3 @@ footer_html = """<div style='text-align: center;'>
 #    - Will it rain in the west of Singapore tomorrow?\n
 #    - Prime Minister of United Kingdom
 #    """)
-
