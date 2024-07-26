@@ -121,12 +121,13 @@ with st.sidebar:
     #    st.stop()
 
 
-model_mistral8B = 'mistralai/Mixtral-8x7B-Instruct-v0.1'
+model_mistral8B = "mistralai/Mixtral-8x7B-Instruct-v0.1"
+llama3_70B = "meta-llama/Meta-Llama-3-70B-Instruct"
 llm = HuggingFaceEndpoint(
-    repo_id=model_mistral8B,
-    max_new_tokens=500,
+    repo_id=llama3_70B,
+    max_new_tokens=600,
     do_sample=False,
-    temperature=0.1,
+    temperature=0.01,
     repetition_penalty=1.1,
     return_full_text=False,
     top_p=0.2,
@@ -158,7 +159,7 @@ if not uploaded_files:
 
     for msg in chat_msgs.messages:
         st.chat_message(msg.type).write(
-            msg.content.replace('</s>', ''))
+            msg.content.replace('<|eot_id|>', ''))
 
     if prompt := st.chat_input("Ask me a question...", on_submit=clear_selectbox) or prompt:
         st.chat_message("human").write(prompt)
@@ -166,7 +167,7 @@ if not uploaded_files:
         try:
             with st.spinner("Grrrr..."):
                 response = executor.invoke({'input': prompt})
-                response = str(response['output'].replace('</s>', ''))
+                response = str(response['output'].replace('<|eot_id|>', ''))
 
             def stream_data():
                 for word in response.split(" "):
@@ -232,7 +233,7 @@ if uploaded_files:
     avatars = {"human": "user", "ai": "assistant"}
     for msg in doc_msgs.messages:
         st.chat_message(avatars[msg.type]).write(
-            msg.content.replace('</s>', ''))
+            msg.content.replace('<|eot_id|>', ''))
 
     if user_query := st.chat_input(placeholder="Ask me about the document..."):
         st.chat_message("user").write(user_query)
@@ -256,3 +257,4 @@ if uploaded_files:
             st.write(model_error_message)
 
 st.sidebar.write(footer_html, unsafe_allow_html=True)
+
