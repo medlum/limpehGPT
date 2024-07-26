@@ -39,7 +39,7 @@ if len(chat_msgs.messages) == 0:
     chat_msgs.clear()
     chat_msgs.add_ai_message(
         """
-       :blue[Woof! Ask me a question or choose one from the sidebar!]
+       :blue[Woof! Ask me a question or choose one from the side bar!]
       
        """)
 
