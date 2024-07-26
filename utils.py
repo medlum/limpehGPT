@@ -16,11 +16,11 @@ import json
 url = "https://huggingface.co/docs/hub/en/security-tokens"
 text = """🐶 is an all-round AI chatdog built with LangChain and Streamlit. Some of its woofwoof capabilities:\n
 - Document-Question-Answering\n
-- Sinagpore news headlines\n
-- US stock price quotes\n
-- Singapore weather forecast\n
-- Summarize/Generate texts\n
-- Coding assistance\n
+- Sinagpore News Headlines\n
+- US Stock Price Quotes\n
+- Singapore Weather Forecast\n
+- Summarize|Generate Texts\n
+- Coding Assistance\n
 🐶 is powered by Mixtral 8x7B language model and HuggingFace🤗 inference endpoint.\n
 """
 
@@ -48,6 +48,17 @@ Previous conversation history:
 
 New question: {input}
 {agent_scratchpad}"""
+
+
+options = ("Latest headlines in Singapore",
+           "Closing price of Nvidia's in the past 5 days",
+           "Trendline of Nvidia's stock price",
+           "Top 5 financial metrics of Nvidia",
+           "How is the weather today?",
+           "Weather forecast in the next few days",
+           "Will it rain in the west of Singapore tomorrow?",
+           "Who is the Prime Minister of United Kingdom?"
+           )
 
 
 def weather4days(url):
@@ -117,7 +128,6 @@ def stockPrice(ticker: str) -> str:
     ticker = ''.join(matches)
     tick = yf.Ticker(ticker)
     price = tick.history()
-
     return price
 
 
@@ -195,3 +205,15 @@ footer_html = """<div style='text-align: center;'>
 <p style="font-size:70%;">Developed with 💗 by Andy Oh</p>
 <p style="font-size:70%;">Ngee Ann Polytechnic</p>
 </div>"""
+
+# chat_msgs.add_user_message(
+#    """
+#    :blue[Woof woof! I can answer general questions like these:]
+#    - Latest headlines in Singapore\n
+#    - Closing price of Nvidia's for the past 5 days in a table\n
+#    - Trendline of Nvidia's stock price\n
+#    - Earnings per share of Microsoft\n
+#    - Weather forecast today\n
+#    - Will it rain in the west of Singapore tomorrow?\n
+#    - Prime Minister of United Kingdom
+#    """)
