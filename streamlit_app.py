@@ -20,7 +20,7 @@ import json
 from streamlit_lottie import st_lottie
 from st_copy_to_clipboard import st_copy_to_clipboard
 from duckduckgo_search.exceptions import RatelimitException
-
+from huggingface_hub.inference._common import ValidationError
 
 st.set_page_config(page_title="Cosmo the ChatDog",
                    layout="wide", page_icon="🐶")
@@ -185,7 +185,10 @@ if not uploaded_files:
 
         except RatelimitException as error:
             st.write(
-                "DuckDuckGo search has reached its rate limit. Try again...")
+                "Woof! I've reached rate limit for using DuckDuckGo to perform online search. Come back later...")
+        except ValidationError as error:
+            st.write(
+                "Woof! I can't handle too much information, try again with lesser request.")
 
 
 @st.cache_resource(ttl="1h")
@@ -256,5 +259,8 @@ if uploaded_files:
         except OverloadedError as error:
             st.write(model_error_message)
 
-st.sidebar.write(footer_html, unsafe_allow_html=True)
+        except ValidationError as error:
+            st.write("Max out tokens as there are too much data to process ")
 
+
+st.sidebar.write(footer_html, unsafe_allow_html=True)
