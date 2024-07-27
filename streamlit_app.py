@@ -8,7 +8,6 @@ import os
 import tempfile
 import time
 from langchain.embeddings import HuggingFaceEmbeddings
-from langchain.callbacks.base import BaseCallbackHandler
 from langchain.chains import ConversationalRetrievalChain
 from langchain.vectorstores import DocArrayInMemorySearch
 from langchain.text_splitter import RecursiveCharacterTextSplitter
@@ -16,7 +15,6 @@ from huggingface_hub.utils._errors import HfHubHTTPError
 from huggingface_hub.errors import OverloadedError
 from langchain_huggingface import HuggingFaceEndpoint
 import requests
-import json
 from streamlit_lottie import st_lottie
 from st_copy_to_clipboard import st_copy_to_clipboard
 from duckduckgo_search.exceptions import RatelimitException
@@ -125,7 +123,7 @@ model_mistral8B = "mistralai/Mixtral-8x7B-Instruct-v0.1"
 llama3_70B = "meta-llama/Meta-Llama-3-70B-Instruct"
 llm = HuggingFaceEndpoint(
     repo_id=llama3_70B,
-    max_new_tokens=600,
+    max_new_tokens=700,
     do_sample=False,
     temperature=0.01,
     repetition_penalty=1.1,
@@ -172,7 +170,7 @@ if not uploaded_files:
             def stream_data():
                 for word in response.split(" "):
                     yield word + " "
-                    time.sleep(0.1)
+                    time.sleep(0.04)
 
             st.chat_message("ai").write_stream(stream_data)
             st_copy_to_clipboard(response)
@@ -188,7 +186,7 @@ if not uploaded_files:
                 "Woof! I've reached rate limit for using DuckDuckGo to perform online search. Come back later...")
         except ValidationError as error:
             st.write(
-                "Woof! I can't handle too much information, try again with lesser request.")
+                "Woof! I can't handle too much information, try again by reducing your request.")
 
 
 @st.cache_resource(ttl="1h")
@@ -248,7 +246,7 @@ if uploaded_files:
             def stream_data():
                 for word in response.split(" "):
                     yield word + " "
-                    time.sleep(0.1)
+                    time.sleep(0.04)
             st.chat_message("ai").write_stream(stream_data)
             st_copy_to_clipboard(response)
             # st.chat_message("ai").write(response)
