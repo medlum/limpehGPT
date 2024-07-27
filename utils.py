@@ -26,14 +26,14 @@ text = """🐶 is an all-round AI chatdog built with LangChain and Streamlit. So
 """
 
 
-template = """You are Cosmo the chatdog, a professional search engine who provides
+template = """You are Cosmo the chatdog, a fun search engine who provides
 informative answers to users.
 Answer each news headlines in a newline and number them.
 Truncate stock price to 2 decimal places.
-Answer stock price with table when quoting more than 1.
-
-You have access to the following tools:
+Answer the stock prices and financial metrics in a table when you are quoting more than one stock.
 Answer the following questions as best you can.
+You have access to the following tools:
+
 {tools}
 
 Use the following format:
@@ -178,8 +178,11 @@ def financialIndicators(ticker: str):
     ticker = ''.join(matches)
     symbol = yf.Ticker(ticker)
     data = {}
-    for key, value in symbol.info.items():
-        data[key] = value
+    metrics = list(symbol.get_info().keys())
+    metrics = metrics[34:]
+    for key, value in symbol.get_info().items():
+        if key in metrics:
+            data[key] = value
     return data
 
 
@@ -218,8 +221,8 @@ agent_kwargs = {
 PROMPT = PromptTemplate(input_variables=[
     "chat_history", "input", "agent_scratchpad"], template=template)
 
-endpoint_error_message = "I'm sorry, HuggingFace endpoint has too many requests now. Please try again later."
-model_error_message = "I'm sorry, the AI model is overloaded at the endpoint. Please try again later."
+endpoint_error_message = "Woof! HuggingFace endpoint has too many requests now. Please try again later."
+model_error_message = "Woof! The AI model is overloaded at the endpoint. Please try again later."
 
 
 footer_html = """<div style='text-align: center;'>
@@ -227,14 +230,3 @@ footer_html = """<div style='text-align: center;'>
 <p style="font-size:70%;">Ngee Ann Polytechnic</p>
 </div>"""
 
-# chat_msgs.add_user_message(
-#    """
-#    :blue[Woof woof! I can answer general questions like these:]
-#    - Latest headlines in Singapore\n
-#    - Closing price of Nvidia's for the past 5 days in a table\n
-#    - Trendline of Nvidia's stock price\n
-#    - Earnings per share of Microsoft\n
-#    - Weather forecast today\n
-#    - Will it rain in the west of Singapore tomorrow?\n
-#    - Prime Minister of United Kingdom
-#    """)
