@@ -4,9 +4,6 @@ import requests
 from bs4 import BeautifulSoup
 from langchain.tools import StructuredTool
 from langchain_core.prompts import (PromptTemplate, MessagesPlaceholder)
-from langchain_community.chat_message_histories import StreamlitChatMessageHistory
-from langchain_community.agent_toolkits.polygon.toolkit import PolygonToolkit
-from langchain_community.utilities.polygon import PolygonAPIWrapper
 import yfinance as yf
 import re
 import altair as alt
@@ -22,15 +19,15 @@ text = """🐶 is an all-round AI chatdog built with LangChain and Streamlit. So
 - Singapore Weather Forecast\n
 - Summarize|Generate Texts\n
 - Coding Assistance\n
-🐶 is powered by Mixtral 8x7B language model and HuggingFace🤗 inference endpoint.\n
+🐶 is powered by Meta-Llama-3-70B-Instruct language model and HuggingFace🤗 inference endpoint.\n
 """
 
 
 template = """You are Cosmo the chatdog, a fun search engine who provides
 informative answers to users.
-Answer each news headlines in a newline and number them.
-Truncate stock price to 2 decimal places.
-Answer the stock prices and financial metrics in a table when you are quoting more than one stock.
+Answer each news headlines on a newline and label with a number.
+For stock prices, truncate the price to 2 decimal places.
+Answer the stock prices in a table when you are quoting more than one stock price.
 Answer the following questions as best you can.
 You have access to the following tools:
 
@@ -55,12 +52,11 @@ New question: {input}
 {agent_scratchpad}"""
 
 
-options = ("What are the top headlines in Singapore?",
+options = ("What are the latest headlines?",
            "Nvidia's closing price on the last trading day.",
            "Nvidia's closing price for the last 5 trading days.",
            "Draw a line chart of Nvidia's stock price.",
-           "Earnings per share of Nvidia.",
-           "Return on Assets of Nvidia.",
+           "What are the EPS and ROA of Nvidia?",
            "How is the weather today?",
            "Weather forecast in the next few days.",
            "Will it rain in the west of Singapore tomorrow?",
@@ -96,7 +92,7 @@ weather24hr_tool = StructuredTool.from_function(
 )
 
 
-def CNAheadlines(genre='singapore'):
+def CNAheadlines(genre: str):
 
     url = "https://www.channelnewsasia.com"
     response = requests.get(url)
@@ -114,7 +110,7 @@ def CNAheadlines(genre='singapore'):
 news_tool = StructuredTool.from_function(
     func=CNAheadlines,
     name="CNA_headlines",
-    description="use this function to provide breaking news, headlines on the world, business and singapore. write each headlines on a newline"
+    description="use this function to provide breaking news, headlines of the world, business and singapore."
 )
 
 search = DuckDuckGoSearchRun()
@@ -128,9 +124,7 @@ pattern = r'[A-Z]+\d+[A-Z]*\.SI|[A-Z]+\b'
 
 
 def stockPrice(ticker: str) -> str:
-    """
-
-    """
+    """return stock price """
     matches = re.findall(pattern, ticker)
     ticker = ''.join(matches)
     tick = yf.Ticker(ticker)
@@ -141,7 +135,7 @@ def stockPrice(ticker: str) -> str:
 stockPrice_tool = StructuredTool.from_function(
     func=stockPrice,
     name='yfinance',
-    description="use this function to find stock or share prices of companies."
+    description="use this function to find stock or share prices of companies.",
 )
 
 
@@ -189,7 +183,7 @@ def financialIndicators(ticker: str):
 financialIndicator_tool = StructuredTool.from_function(
     func=financialIndicators,
     name='financial_metrics',
-    description="use this function to download company's financial indicators like price earnings, earnings per share etc"
+    description="use this function to download company's financial metrics like PE ratio, EPS etc"
 )
 
 
@@ -229,4 +223,5 @@ footer_html = """<div style='text-align: center;'>
 <p style="font-size:70%;">Developed with 💗 by Andy Oh</p>
 <p style="font-size:70%;">Ngee Ann Polytechnic</p>
 </div>"""
+
 
