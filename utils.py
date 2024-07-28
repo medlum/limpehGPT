@@ -10,6 +10,8 @@ import altair as alt
 import streamlit as st
 import json
 from datetime import date
+from langchain_community.utilities import WikipediaAPIWrapper
+from langchain_community.tools import BraveSearch
 
 url = "https://huggingface.co/docs/hub/en/security-tokens"
 text = """🐶 is an all-round AI chatdog built with LangChain and Streamlit. Some of its woofwoof capabilities:\n
@@ -66,8 +68,27 @@ options = ("What are the latest headlines?",
            "How is the weather today?",
            "Weather forecast in the next few days.",
            "Will it rain in the west of Singapore tomorrow?",
-           "Who is the Prime Minister of United Kingdom?",
+           "Who is the Prime Minister of Singapore?",
            )
+
+braveSearch = BraveSearch.from_api_key(
+    api_key=st.secrets['brave_api'], search_kwargs={"count": 3})
+
+
+braveSearch_tool = Tool(
+    func=braveSearch,
+    name="brave_search",
+    description="use this function to answer questions about most current events."
+)
+
+
+wikipedia = WikipediaAPIWrapper()
+
+wikipedia_tool = Tool(
+    name='wikipedia',
+    func=wikipedia.run,
+    description="Useful when you need to look up for comprehensive information on all branches of knowledge"
+)
 
 
 def weather4days(url):
@@ -205,13 +226,15 @@ time_tool = StructuredTool.from_function(
 
 
 # remove linechart_tool
-tools = [search_tool, news_tool,
+tools = [news_tool,
          stockPrice_tool,
          financialIndicator_tool,
          stockLineChart_tool,
          weather24hr_tool,
          weather4days_tool,
-         time_tool
+         time_tool,
+         wikipedia_tool,
+         braveSearch_tool
          ]
 
 agent_kwargs = {
@@ -229,3 +252,8 @@ footer_html = """<div style='text-align: center;'>
 <p style="font-size:70%;">Developed with 💗 by Andy Oh</p>
 <p style="font-size:70%;">Ngee Ann Polytechnic</p>
 </div>"""
+
+
+# search tool:
+# https://api.search.brave.com/app/subscriptions/active
+
