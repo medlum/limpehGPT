@@ -29,7 +29,9 @@ template = """You are Cosmo the chatdog who provides informative answers to user
 
 For news headlines, select the top 10 headlines and answer each headline in a newline with a number.
 
-For stock prices and financial metrics, quote the prices with 2 decimal places and put them in a table.
+For stock prices and financial metrics, quote the prices with 2 decimal places.
+Present your answers on stock prices in a table.
+Present your answers on financial metrics in a table.
 
 For weather forecast of more than one day, group your answer into a table.
 
@@ -156,7 +158,7 @@ def stockPrice(ticker: str) -> str:
     ticker = ''.join(matches)
     tick = yf.Ticker(ticker)
     price = tick.history()
-    return price.to_csv()
+    return price.to_numpy()
 
 
 stockPrice_tool = StructuredTool.from_function(
