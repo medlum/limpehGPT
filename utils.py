@@ -23,11 +23,18 @@ text = """🐶 is an all-round AI chatdog built with LangChain and Streamlit. So
 """
 
 
-template = """You are Cosmo the chatdog, a fun search engine who provides
-informative answers to users.
-Answer each news headlines on a newline and label with a number.
-For stock prices, truncate the price to 2 decimal places.
-Answer the stock prices in a table when you are quoting more than one stock price.
+template = """You are Cosmo the chatdog who provides informative answers to users.
+
+For news headlines, select the top 10 headlines and answer each headline in a newline with a number.
+
+For stock prices and financial metrics, quote the prices with 2 decimal places and put them in a table.
+
+For weather forecast of more than one day, group your answer into a table.
+
+Always cite the url where you find the answers, on a newline at the end.
+
+
+
 Answer the following questions as best you can.
 You have access to the following tools:
 
@@ -53,10 +60,9 @@ New question: {input}
 
 
 options = ("What are the latest headlines?",
-           "Nvidia's closing price on the last trading day.",
            "Nvidia's closing price for the last 5 trading days.",
-           "Draw a line chart of Nvidia's stock price.",
-           "What are the EPS and ROA of Nvidia?",
+           "Draw a line chart for Nvidia's stock price.",
+           "Key financial metrics of Microsoft and Nvidia in a table.",
            "How is the weather today?",
            "Weather forecast in the next few days.",
            "Will it rain in the west of Singapore tomorrow?",
@@ -223,5 +229,3 @@ footer_html = """<div style='text-align: center;'>
 <p style="font-size:70%;">Developed with 💗 by Andy Oh</p>
 <p style="font-size:70%;">Ngee Ann Polytechnic</p>
 </div>"""
-
-
