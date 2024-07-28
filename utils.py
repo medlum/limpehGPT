@@ -158,7 +158,7 @@ def stockPrice(ticker: str) -> str:
     ticker = ''.join(matches)
     tick = yf.Ticker(ticker)
     price = tick.history()
-    return price.to_numpy()
+    return price.to_dict()
 
 
 stockPrice_tool = StructuredTool.from_function(
