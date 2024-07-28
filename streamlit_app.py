@@ -96,7 +96,7 @@ with st.sidebar:
     # create sample questions
     prompt = st.selectbox(label="",
                           options=options,
-                          placeholder="Choose a sample question",
+                          placeholder="Select a sample question",
                           key="selection",
                           index=None,
                           )
@@ -262,3 +262,4 @@ if uploaded_files:
 
 
 st.sidebar.write(footer_html, unsafe_allow_html=True)
+
