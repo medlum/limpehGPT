@@ -53,6 +53,17 @@ def clear_selectbox():
 
 
 # ---- lottie files ---- #
+st.markdown("""
+<style>
+.big-font {
+    font-size:50px !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
+st.markdown('<p class="big-font">Curiosity Starts Here</p>',
+            unsafe_allow_html=True)
+
 url = "https://lottie.host/4ef3b238-96dd-4078-992a-50f5a41d255c/mTUUT5AegN.json"
 url = "https://lottie.host/ec0907dc-d6ac-4ecf-b267-e98d2b1c558d/eGhP7jwBj3.json"
 url = requests.get(url)
@@ -79,6 +90,10 @@ st_lottie(url_json,
           key='bot'
           )
 
+col1, col2 = st.columns(2)
+creative = col1.button(
+    'Creative Focus', use_container_width=True, key='creative')
+search = col2.button('Search Focus', use_container_width=True, key='search')
 
 uploaded_files = False
 
@@ -91,7 +106,7 @@ with st.sidebar:
         selection = st.session_state[key]
         # st.write(f"Selection changed to {selection}")
     # https://icons.getbootstrap.com/
-    selected = option_menu("Cosmo", ["Questions", "Clear Chat", 'Upload File', 'About Cosmo'],
+    selected = option_menu("Woof!", ["Questions", "Clear Chat", 'Upload File', 'About Cosmo'],
                            icons=["list-task", 'bi-archive',
                                   "bi-cloud-upload", 'gear'],
                            menu_icon="bi-robot",
@@ -112,7 +127,7 @@ with st.sidebar:
     elif selected == "Questions":
         prompt = st.selectbox(label="",
                               options=options,
-                              placeholder="Select a sample question",
+                              placeholder="Choose a question",
                               key="selection",
                               index=None,
                               )
@@ -270,3 +285,4 @@ if uploaded_files:
 
 
 st.sidebar.write(footer_html, unsafe_allow_html=True)
+
