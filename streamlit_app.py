@@ -19,6 +19,7 @@ from streamlit_lottie import st_lottie
 from st_copy_to_clipboard import st_copy_to_clipboard
 from duckduckgo_search.exceptions import RatelimitException
 from huggingface_hub.inference._common import ValidationError
+from streamlit_option_menu import option_menu
 
 st.set_page_config(page_title="Cosmo the ChatDog",
                    layout="wide", page_icon="🐶")
@@ -31,15 +32,15 @@ doc_msgs = StreamlitChatMessageHistory()
 if len(doc_msgs.messages) == 0:
     doc_msgs.clear()
     doc_msgs.add_ai_message(
-        "You have uploaded document, how can I help?")
+        "You have uploaded a PDF document, how can I help?")
 
 if len(chat_msgs.messages) == 0:
     chat_msgs.clear()
-    chat_msgs.add_ai_message(
-        """
-       :blue[Woof! Ask me a question or choose one from the side bar!]
-      
-       """)
+    # chat_msgs.add_ai_message(
+    #    """
+    #   :blue[Woof! Ask me a question or choose one from the side bar!]
+    #
+    #   """)
 
 
 # --- callback function for clear history button ----#
@@ -83,8 +84,8 @@ with col1:
               # This is just to uniquely identify the animation
               key='bot'
               )
-with col2:
-    st.subheader("**:grey[Cosmo, the chat dog]**")
+# with col2:
+#    st.subheader("**:grey[Cosmo, the chat dog]**")
 
 # Enable chat agent and conversational memory with upload_files = False
 
@@ -94,35 +95,69 @@ uploaded_files = False
 # Create widgets for sidebar
 with st.sidebar:
     # create sample questions
-    prompt = st.selectbox(label="",
-                          options=options,
-                          placeholder="Select a sample question",
-                          key="selection",
-                          index=None,
-                          )
-    st.button("🧹 Clear Chat Messages",
-              on_click=clear_history)
+    prompt = ""
+    # prompt = st.selectbox(label="",
+    #                      options=options,
+    #                      placeholder="Select a sample question",
+    #                      key="selection",
+    #                      index=None,
+    #                      )
+    # st.button("🧹 Clear Chat Messages",
+    #          on_click=clear_history)
 
-    if st.toggle(":blue[Activate File Uploader]",):
+    # if st.toggle(":blue[Activate File Uploader]",):
+    #    uploaded_files = st.file_uploader(
+    #        label='Upload PDF file', type=["pdf"],
+    #        accept_multiple_files=True,
+    #        on_change=doc_msgs.clear)
+
+    # with st.expander('About chat-dog Cosmo 🐶'):
+    #    st.write(text)
+
+    def on_change(key):
+        selection = st.session_state[key]
+        # st.write(f"Selection changed to {selection}")
+    # https://icons.getbootstrap.com/
+    selected = option_menu("Cosmo", ["Questions", "Clear Chat", 'Upload File', 'About Cosmo'],
+                           icons=["list-task", 'bi-archive',
+                                  "bi-cloud-upload", 'gear'],
+                           menu_icon="bi-robot",
+                           default_index=1,
+                           key='menu_5',
+                           on_change=on_change,
+                           styles={
+        # "container": {"padding": "0!important"},
+        "menu-title": {"font-size": "20px"},
+        "icon": {"color": "orange", "font-size": "15px"},
+        "nav-link": {"font-size": "15px", "text-align": "left", "margin": "0px", "--hover-color": "#eee"},
+        # "nav-link-selected": {"background-color": "grey"},
+    })
+
+    if selected == "About Cosmo":
+        st.write(text)
+
+    elif selected == "Questions":
+        prompt = st.selectbox(label="",
+                              options=options,
+                              placeholder="Select a sample question",
+                              key="selection",
+                              index=None,
+                              )
+    elif selected == "Upload File":
         uploaded_files = st.file_uploader(
             label='Upload PDF file', type=["pdf"],
             accept_multiple_files=True,
             on_change=doc_msgs.clear)
 
-    with st.expander('About 🐶 WoofWoofGPT'):
-        st.write(text)
-    # huggingfacehub_api_token = st.text_input(
-    #    "Hugging Face Access Token", type="password")
-    #
-    # if not huggingfacehub_api_token:
-    #    st.info("Please add your HuggingFace access token to continue.")
-    #    st.stop()
+    elif selected == "Clear Chat":
+        clear_history()
 
 
 model_mistral8B = "mistralai/Mixtral-8x7B-Instruct-v0.1"
 llama3_70B = "meta-llama/Meta-Llama-3-70B-Instruct"
+llama3p1_70B = "meta-llama/Meta-Llama-3.1-70B-Instruct"
 llm = HuggingFaceEndpoint(
-    repo_id=llama3_70B,
+    repo_id=llama3p1_70B,
     max_new_tokens=700,
     do_sample=False,
     temperature=0.01,
@@ -154,12 +189,12 @@ if not uploaded_files:
         verbose=True,
         agent_kwargs=agent_kwargs,
     )
-
+ ok
     for msg in chat_msgs.messages:
         st.chat_message(msg.type).write(
             msg.content.replace('<|eot_id|>', ''))
 
-    if prompt := st.chat_input("Ask me a question...", on_submit=clear_selectbox) or prompt:
+    if prompt := st.chat_input("Woof! Ask me a question or choose one from the side bar!", on_submit=clear_selectbox) or prompt:
         st.chat_message("human").write(prompt)
 
         try:
