@@ -95,7 +95,7 @@ with st.sidebar:
                            icons=["list-task", 'bi-archive',
                                   "bi-cloud-upload", 'gear'],
                            menu_icon="bi-robot",
-                           default_index=1,
+                           default_index=0,
                            key='menu_5',
                            on_change=on_change,
                            styles={
