@@ -56,7 +56,7 @@ def clear_selectbox():
 st.markdown("""
 <style>
 .big-font {
-    font-size:30px !important;
+    font-size:50px !important;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -90,10 +90,6 @@ st_lottie(url_json,
           key='bot'
           )
 
-col1, col2 = st.columns(2)
-creative = col1.button(
-    'Creative Focus', use_container_width=True, key='creative')
-search = col2.button('Search Focus', use_container_width=True, key='search')
 
 uploaded_files = False
 
@@ -102,17 +98,18 @@ with st.sidebar:
     # create sample questions
     prompt = ""
 
-    def on_change(key):
-        selection = st.session_state[key]
-        # st.write(f"Selection changed to {selection}")
+    # def on_change(key):
+    #    selection = st.session_state[key]
+    #    # st.write(f"Selection changed to {selection}")
+
     # https://icons.getbootstrap.com/
-    selected = option_menu("Woof!", ["Questions", "Clear Chat", 'Upload File', 'About Cosmo'],
+    selected = option_menu("Woof!", ["Illustrative Prompts", "Clear Chat", 'Upload File', 'About Cosmo'],
                            icons=["list-task", 'bi-archive',
                                   "bi-cloud-upload", 'gear'],
                            menu_icon="bi-robot",
                            default_index=0,
                            key='menu_5',
-                           on_change=on_change,
+                           # on_change=on_change,
                            styles={
         # "container": {"padding": "0!important"},
         "menu-title": {"font-size": "20px"},
@@ -121,13 +118,19 @@ with st.sidebar:
         # "nav-link-selected": {"background-color": "grey"},
     })
 
+    col1, col2 = st.columns(2)
+    creative_focus = col1.button(
+        'Creative Focus', use_container_width=True, key='creative')
+    search_focus = col2.button(
+        'Search Focus', use_container_width=True, key='search')
+
     if selected == "About Cosmo":
         st.write(text)
 
-    elif selected == "Questions":
+    elif selected == "Illustrative Prompts":
         prompt = st.selectbox(label="",
                               options=options,
-                              placeholder="Choose a question",
+                              placeholder="Choose a prompt",
                               key="selection",
                               index=None,
                               )
@@ -182,13 +185,14 @@ if not uploaded_files:
         st.chat_message(msg.type).write(
             msg.content.replace('<|eot_id|>', ''))
 
-    if prompt := st.chat_input("Woof! Ask me a question or choose one from the side bar!", on_submit=clear_selectbox) or prompt:
+    if prompt := st.chat_input("Ask a question or choose a prompt at the side bar!", on_submit=clear_selectbox) or prompt:
         st.chat_message("human").write(prompt)
 
         try:
             with st.spinner("Grrrr..."):
                 response = executor.invoke({'input': prompt})
-                response = str(response['output'].replace('<|eot_id|>', ''))
+                response = str(
+                    response['output'].replace('<|eot_id|>', ''))
 
             def stream_data():
                 for word in response.split(" "):
@@ -285,4 +289,3 @@ if uploaded_files:
 
 
 st.sidebar.write(footer_html, unsafe_allow_html=True)
-
