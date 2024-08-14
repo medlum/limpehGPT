@@ -192,9 +192,9 @@ if not uploaded_files:
         except RatelimitException as error:
             st.write(
                 "Woof! I've reached rate limit for using DuckDuckGo to perform online search. Come back later...")
-        except ValidationError as error:
-            st.write(
-                "Woof! I can't handle too much information, try again by reducing your request.")
+        #except ValidationError as error:
+        #    st.write(
+        #        "Woof! I can't handle too much information, try again by reducing your request.")
 
 
 @st.cache_resource(ttl="1h")
