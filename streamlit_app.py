@@ -36,11 +36,6 @@ if len(doc_msgs.messages) == 0:
 
 if len(chat_msgs.messages) == 0:
     chat_msgs.clear()
-    # chat_msgs.add_ai_message(
-    #    """
-    #   :blue[Woof! Ask me a question or choose one from the side bar!]
-    #
-    #   """)
 
 
 # --- callback function for clear history button ----#
@@ -59,6 +54,7 @@ def clear_selectbox():
 
 # ---- lottie files ---- #
 url = "https://lottie.host/4ef3b238-96dd-4078-992a-50f5a41d255c/mTUUT5AegN.json"
+url = "https://lottie.host/ec0907dc-d6ac-4ecf-b267-e98d2b1c558d/eGhP7jwBj3.json"
 url = requests.get(url)
 
 url_json = dict()
@@ -67,27 +63,21 @@ if url.status_code == 200:
 else:
     print("Error in the URL")
 
-col1, col2 = st.columns(spec=[10, 60], vertical_alignment="center")
-with col1:
-    st_lottie(url_json,
-              # change the direction of our animation
-              reverse=True,
-              # height and width of animation
-              height=120,
-              width=120,
-              # speed of animation
-              speed=1,
-              # means the animation will run forever like a gif, and not as a still image
-              loop=True,
-              # quality of elements used in the animation, other values are "low" and "medium"
-              quality='high',
-              # This is just to uniquely identify the animation
-              key='bot'
-              )
-# with col2:
-#    st.subheader("**:grey[Cosmo, the chat dog]**")
-
-# Enable chat agent and conversational memory with upload_files = False
+st_lottie(url_json,
+          # change the direction of our animation
+          reverse=True,
+          # height and width of animation
+          height=250,
+          width=250,
+          # speed of animation
+          speed=1,
+          # means the animation will run forever like a gif, and not as a still image
+          loop=True,
+          # quality of elements used in the animation, other values are "low" and "medium"
+          quality='high',
+          # This is just to uniquely identify the animation
+          key='bot'
+          )
 
 
 uploaded_files = False
@@ -96,23 +86,6 @@ uploaded_files = False
 with st.sidebar:
     # create sample questions
     prompt = ""
-    # prompt = st.selectbox(label="",
-    #                      options=options,
-    #                      placeholder="Select a sample question",
-    #                      key="selection",
-    #                      index=None,
-    #                      )
-    # st.button("🧹 Clear Chat Messages",
-    #          on_click=clear_history)
-
-    # if st.toggle(":blue[Activate File Uploader]",):
-    #    uploaded_files = st.file_uploader(
-    #        label='Upload PDF file', type=["pdf"],
-    #        accept_multiple_files=True,
-    #        on_change=doc_msgs.clear)
-
-    # with st.expander('About chat-dog Cosmo 🐶'):
-    #    st.write(text)
 
     def on_change(key):
         selection = st.session_state[key]
@@ -157,7 +130,7 @@ model_mistral8B = "mistralai/Mixtral-8x7B-Instruct-v0.1"
 llama3_70B = "meta-llama/Meta-Llama-3-70B-Instruct"
 llama3p1_70B = "meta-llama/Meta-Llama-3.1-70B-Instruct"
 llm = HuggingFaceEndpoint(
-    repo_id=llama3_70B,
+    repo_id=llama3p1_70B,
     max_new_tokens=700,
     do_sample=False,
     temperature=0.01,
@@ -189,7 +162,7 @@ if not uploaded_files:
         verbose=True,
         agent_kwargs=agent_kwargs,
     )
- 
+
     for msg in chat_msgs.messages:
         st.chat_message(msg.type).write(
             msg.content.replace('<|eot_id|>', ''))
