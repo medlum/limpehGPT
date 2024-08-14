@@ -120,3 +120,4 @@ pyowm
 yfinance 
 altair
 st_copy_to_clipboard
+streamlit_option_menu
