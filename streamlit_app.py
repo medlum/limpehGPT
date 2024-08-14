@@ -270,4 +270,3 @@ if uploaded_files:
 
 
 st.sidebar.write(footer_html, unsafe_allow_html=True)
-
