@@ -380,3 +380,4 @@ factual_mode = col2.button(
     'Be Factual', use_container_width=True, key='search', on_click=factual_mode_button)
 
 st.sidebar.write(footer_html, unsafe_allow_html=True)
+
