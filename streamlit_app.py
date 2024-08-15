@@ -26,8 +26,8 @@ from langchain.schema import (
 )
 
 
-st.set_page_config(page_title="Cosmo the ChatDog",
-                   layout="wide", page_icon="🐶")
+# st.set_page_config(page_title="Cosmo the ChatDog",
+#                   layout="wide", page_icon="🐶")
 
 # ---- set up history for chat and document messages ----#
 chat_msgs = StreamlitChatMessageHistory(key="special_app_key")
@@ -79,7 +79,7 @@ def creative_mode_button():
 st.markdown("""
 <style>
 .big-font {
-    font-size:2.3rem !important;
+    font-size:1.6rem !important;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -87,6 +87,8 @@ st.markdown("""
 st.markdown('<p class="big-font">Curiosity Starts Here...</p>',
             unsafe_allow_html=True)
 
+
+st.markdown(css, unsafe_allow_html=True)
 # ---- set up lottie icon ---- #
 url = "https://lottie.host/4ef3b238-96dd-4078-992a-50f5a41d255c/mTUUT5AegN.json"
 url = "https://lottie.host/ec0907dc-d6ac-4ecf-b267-e98d2b1c558d/eGhP7jwBj3.json"
@@ -100,21 +102,14 @@ else:
 
 st_lottie(url_json,
           reverse=True,  # change the direction
-          height=250,  # height and width
-          width=250,
+          height=230,  # height and width
+          width=230,
           speed=1,  # speed
           loop=True,  # run forever like a gif
           quality='high',  # options include "low" and "medium"
           key='bot'  # Uniquely identify the animation
           )
 
-# ----- Create creative and factual ------#
-col1, col2 = st.columns(2)
-creative_mode = col1.button(
-    'Be Creative', use_container_width=True, key='creative',  on_click=creative_mode_button)
-
-factual_mode = col2.button(
-    'Be Factual', use_container_width=True, key='search', on_click=factual_mode_button)
 
 uploaded_files = False
 
@@ -172,13 +167,13 @@ if not uploaded_files:
         # def on_button_click(button):
         #    st.session_state.last_clicked = button
 
-        #st.write(":blue[Some factual prompt examples...]")
+        # st.write(":blue[Some factual prompt examples...]")
 
-        #with st.container(height=80):
+        # with st.container(height=80):
         #    for n, qn in enumerate(options):
-        #        st.write(qn)
-                # st.button(qn, on_click=on_button_click,
-                #          kwargs={"button": qn})
+        # st.write(qn)
+        # st.button(qn, on_click=on_button_click,
+        #          kwargs={"button": qn})
 
         # if "last_clicked" in st.session_state:
         #    prompt = str(st.session_state.last_clicked)
@@ -266,7 +261,7 @@ if not uploaded_files:
         )
 
         if prompt := st.chat_input("Woof! Cosmo is in creative mode!", on_submit=clear_selectbox):
-            st.chat_message("human").write(prompt)
+            st.markdown(prompt.upper())
 
             messages = [
                 SystemMessage(
@@ -280,16 +275,15 @@ if not uploaded_files:
             with st.spinner("Grrrr..."):
                 response = llm.invoke(messages)
                 # response = llm_engine_hf.invoke(messages)
-                print(response)
 
             def stream_data():
                 for word in response.split(" "):
                     yield word + " "
                     time.sleep(0.04)
 
-            st.chat_message("ai").write_stream(stream_data)
-            st_copy_to_clipboard(response)
-            # st.chat_message("ai").write(response.content)
+            with st.container(border=True, height=400):
+                st.write_stream(stream_data)
+                st_copy_to_clipboard(response)
 
 # ------- DOCUMENT RAG ------------#
 
@@ -377,5 +371,12 @@ if uploaded_files:
         except ValidationError as error:
             st.write("Max out tokens as there are too much data to process ")
 
+# ----- Create creative and factual ------#
+col1, col2 = st.columns(2)
+creative_mode = col1.button(
+    'Be Creative', use_container_width=True, key='creative',  on_click=creative_mode_button)
+
+factual_mode = col2.button(
+    'Be Factual', use_container_width=True, key='search', on_click=factual_mode_button)
 
 st.sidebar.write(footer_html, unsafe_allow_html=True)
