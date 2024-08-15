@@ -13,13 +13,18 @@ from langchain.vectorstores import DocArrayInMemorySearch
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from huggingface_hub.utils._errors import HfHubHTTPError
 from huggingface_hub.errors import OverloadedError
-from langchain_huggingface import HuggingFaceEndpoint
+from langchain_huggingface import HuggingFaceEndpoint, ChatHuggingFace
 import requests
 from streamlit_lottie import st_lottie
 from st_copy_to_clipboard import st_copy_to_clipboard
 from duckduckgo_search.exceptions import RatelimitException
 from huggingface_hub.inference._common import ValidationError
 from streamlit_option_menu import option_menu
+from langchain.schema import (
+    HumanMessage,
+    SystemMessage,
+)
+
 
 st.set_page_config(page_title="Cosmo the ChatDog",
                    layout="wide", page_icon="🐶")
@@ -37,8 +42,8 @@ if len(doc_msgs.messages) == 0:
 if len(chat_msgs.messages) == 0:
     chat_msgs.clear()
 
-
 # --- callback function for clear history button ----#
+
 
 def clear_history():
     chat_msgs.clear()
@@ -52,18 +57,37 @@ def clear_selectbox():
     st.session_state.selection = None
 
 
-# ---- lottie files ---- #
+# ---- set up session state for factual and creative button ---- #
+if 'factual_mode' not in st.session_state:
+    st.session_state.factual_mode = False
+
+if 'creative_mode' not in st.session_state:
+    st.session_state.creative_mode = False
+
+
+def factual_mode_button():
+    st.session_state.factual_mode = True  # factual memory on
+    st.session_state.creative_mode = False  # creative memory off
+
+
+def creative_mode_button():
+    st.session_state.creative_mode = True  # creative memory on
+    st.session_state.factual_mode = False  # factual memory off
+
+
+# ---- Set up Header: Curiosity Starts Here ---- #
 st.markdown("""
 <style>
 .big-font {
-    font-size:30px !important;
+    font-size:2.3rem !important;
 }
 </style>
 """, unsafe_allow_html=True)
 
-st.markdown('<p class="big-font">Curiosity Starts Here</p>',
+st.markdown('<p class="big-font">Curiosity Starts Here...</p>',
             unsafe_allow_html=True)
 
+# ---- set up lottie icon ---- #
 url = "https://lottie.host/4ef3b238-96dd-4078-992a-50f5a41d255c/mTUUT5AegN.json"
 url = "https://lottie.host/ec0907dc-d6ac-4ecf-b267-e98d2b1c558d/eGhP7jwBj3.json"
 url = requests.get(url)
@@ -75,35 +99,30 @@ else:
     print("Error in the URL")
 
 st_lottie(url_json,
-          # change the direction of our animation
-          reverse=True,
-          # height and width of animation
-          height=250,
+          reverse=True,  # change the direction
+          height=250,  # height and width
           width=250,
-          # speed of animation
-          speed=1,
-          # means the animation will run forever like a gif, and not as a still image
-          loop=True,
-          # quality of elements used in the animation, other values are "low" and "medium"
-          quality='high',
-          # This is just to uniquely identify the animation
-          key='bot'
+          speed=1,  # speed
+          loop=True,  # run forever like a gif
+          quality='high',  # options include "low" and "medium"
+          key='bot'  # Uniquely identify the animation
           )
 
+# ----- Create creative and factual ------#
+col1, col2 = st.columns(2)
+creative_mode = col1.button(
+    'Be Creative', use_container_width=True, key='creative',  on_click=creative_mode_button)
+
+factual_mode = col2.button(
+    'Be Factual', use_container_width=True, key='search', on_click=factual_mode_button)
 
 uploaded_files = False
 
-# Create widgets for sidebar
+# ----- Create widgets for sidebar ------#
 with st.sidebar:
-    # create sample questions
-    prompt = ""
-
-    # def on_change(key):
-    #    selection = st.session_state[key]
-    #    # st.write(f"Selection changed to {selection}")
 
     # https://icons.getbootstrap.com/
-    selected = option_menu("Woof!", ["Illustrative Prompts", "Clear Chat", 'Upload File', 'About Cosmo'],
+    selected = option_menu("Woof!", ["Creative or Factual?", "Clear Chat", 'Upload File', 'About Cosmo'],
                            icons=["list-task", 'bi-archive',
                                   "bi-cloud-upload", 'gear'],
                            menu_icon="bi-robot",
@@ -118,27 +137,20 @@ with st.sidebar:
         # "nav-link-selected": {"background-color": "grey"},
     })
 
-    col1, col2 = st.columns(2)
-    creative_focus = col1.button(
-        'Creative Focus', use_container_width=True, key='creative')
-    search_focus = col2.button(
-        'Search Focus', use_container_width=True, key='search')
-
     if selected == "About Cosmo":
-        st.write(text)
+        with st.container(height=300):
+            st.write(text)
 
-    elif selected == "Illustrative Prompts":
-        prompt = st.selectbox(label="",
-                              options=options,
-                              placeholder="Choose a prompt",
-                              key="selection",
-                              index=None,
-                              )
+    elif selected == "Creative or Factual?":
+        with st.container(height=220):
+            st.write(creative_factual_intro)
+
     elif selected == "Upload File":
-        uploaded_files = st.file_uploader(
-            label='Upload PDF file', type=["pdf"],
-            accept_multiple_files=True,
-            on_change=doc_msgs.clear)
+        with st.container(height=250):
+            uploaded_files = st.file_uploader(
+                label='Upload PDF file', type=["pdf"],
+                accept_multiple_files=True,
+                on_change=doc_msgs.clear)
 
     elif selected == "Clear Chat":
         clear_history()
@@ -147,52 +159,128 @@ with st.sidebar:
 model_mistral8B = "mistralai/Mixtral-8x7B-Instruct-v0.1"
 llama3_70B = "meta-llama/Meta-Llama-3-70B-Instruct"
 llama3p1_70B = "meta-llama/Meta-Llama-3.1-70B-Instruct"
-llm = HuggingFaceEndpoint(
-    repo_id=llama3p1_70B,
-    max_new_tokens=700,
-    do_sample=False,
-    temperature=0.01,
-    repetition_penalty=1.1,
-    return_full_text=False,
-    top_p=0.2,
-    top_k=40,
-    huggingfacehub_api_token=st.secrets["huggingfacehub_api_token"]
-)
 
 # If no files are uploaded, llm will be used for agent tools.
 if not uploaded_files:
+    # ----- When factual button is clicked ------#
+    if st.session_state.factual_mode:
+        # clear previous history messages
+        chat_msgs.clear()
 
-    conversational_memory = ConversationBufferMemory(
-        memory_key='chat_history',
-        chat_memory=chat_msgs,
-        k=chat_history_size,
-        return_messages=True)
+        # create example questions as button
 
-    react_agent = create_react_agent(llm, tools, PROMPT)
+        # def on_button_click(button):
+        #    st.session_state.last_clicked = button
 
-    executor = AgentExecutor(
-        agent=react_agent,
-        tools=tools,
-        memory=conversational_memory,
-        max_iterations=10,
-        # return_intermediate_steps=True,
-        handle_parsing_errors=True,
-        verbose=True,
-        agent_kwargs=agent_kwargs,
-    )
+        st.write(":blue[Some factual prompt examples...]")
 
-    for msg in chat_msgs.messages:
-        st.chat_message(msg.type).write(
-            msg.content.replace('<|eot_id|>', ''))
+        with st.container(height=80):
+            for n, qn in enumerate(options):
+                st.write(qn)
+                # st.button(qn, on_click=on_button_click,
+                #          kwargs={"button": qn})
 
-    if prompt := st.chat_input("Ask a question or choose a prompt at the side bar!", on_submit=clear_selectbox) or prompt:
-        st.chat_message("human").write(prompt)
+        # if "last_clicked" in st.session_state:
+        #    prompt = str(st.session_state.last_clicked)
+        #    st.write(str(st.session_state.last_clicked).upper())
 
-        try:
+        # Set up LLM for factual mode
+        llm = HuggingFaceEndpoint(
+            repo_id=llama3p1_70B,
+            max_new_tokens=700,
+            do_sample=False,
+            temperature=0.01,
+            repetition_penalty=1.1,
+            return_full_text=False,
+            top_p=0.2,
+            top_k=40,
+            huggingfacehub_api_token=st.secrets["huggingfacehub_api_token"]
+        )
+
+        conversational_memory = ConversationBufferMemory(
+            memory_key='chat_history',
+            chat_memory=chat_msgs,
+            k=chat_history_size,
+            return_messages=True)
+
+        react_agent = create_react_agent(llm, tools, PROMPT)
+
+        executor = AgentExecutor(
+            agent=react_agent,
+            tools=tools,
+            memory=conversational_memory,
+            max_iterations=10,
+            handle_parsing_errors=True,
+            verbose=True,
+            agent_kwargs=agent_kwargs,
+        )
+
+        if prompt := st.chat_input("Woof! Cosmo is in factual mode!", on_submit=clear_selectbox):
+            st.markdown(prompt.upper())
+
+            try:
+                with st.spinner("Grrrr..."):
+                    response = executor.invoke({'input': prompt})
+                    response = str(
+                        response['output'].replace('<|eot_id|>', ''))
+
+                def stream_data():
+                    for word in response.split(" "):
+                        yield word + " "
+                        time.sleep(0.04)
+
+                with st.container(border=True, height=400):
+
+                    st.chat_message("ai").write_stream(stream_data)
+                    st_copy_to_clipboard(response)
+
+            except HfHubHTTPError as error:
+                st.write(endpoint_error_message)
+
+            except OverloadedError as error:
+                st.write(model_error_message)
+
+            except RatelimitException as error:
+                st.write(
+                    "Woof! I've reached rate limit for using DuckDuckGo to perform online search. Come back later...")
+            except ValidationError as error:
+                st.write(
+                    "Woof! I can't handle too much information, try again by reducing your request.")
+
+    # ----- When Creative Button is clicked ------#
+    if st.session_state.creative_mode:
+        # clear previous history messages
+        chat_msgs.clear()
+        # Set up LLM for creative mode
+        llm = HuggingFaceEndpoint(
+            repo_id=llama3p1_70B,
+            task="text-generation",
+            max_new_tokens=1000,
+            do_sample=False,
+            temperature=0.6,
+            repetition_penalty=1.1,
+            return_full_text=False,
+            top_p=0.2,
+            top_k=40,
+            huggingfacehub_api_token=st.secrets["huggingfacehub_api_token"]
+        )
+
+        if prompt := st.chat_input("Woof! Cosmo is in creative mode!", on_submit=clear_selectbox):
+            st.chat_message("human").write(prompt)
+
+            messages = [
+                SystemMessage(
+                    content="You're a Cosmo a friendly chatdog. Always be helpful and thorough with your answers."),
+                HumanMessage(
+                    content=f"{prompt}"
+                ),
+            ]
+            # llm_engine_hf = ChatHuggingFace(llm=llm)
+
             with st.spinner("Grrrr..."):
-                response = executor.invoke({'input': prompt})
-                response = str(
-                    response['output'].replace('<|eot_id|>', ''))
+                response = llm.invoke(messages)
+                # response = llm_engine_hf.invoke(messages)
+                print(response)
 
             def stream_data():
                 for word in response.split(" "):
@@ -201,19 +289,9 @@ if not uploaded_files:
 
             st.chat_message("ai").write_stream(stream_data)
             st_copy_to_clipboard(response)
-            # st.chat_message("ai").write(response)
-        except HfHubHTTPError as error:
-            st.write(endpoint_error_message)
+            # st.chat_message("ai").write(response.content)
 
-        except OverloadedError as error:
-            st.write(model_error_message)
-
-        except RatelimitException as error:
-            st.write(
-                "Woof! I've reached rate limit for using DuckDuckGo to perform online search. Come back later...")
-        except ValidationError as error:
-            st.write(
-                "Woof! I can't handle too much information, try again by reducing your request.")
+# ------- DOCUMENT RAG ------------#
 
 
 @st.cache_resource(ttl="1h")
@@ -254,6 +332,18 @@ if uploaded_files:
         memory_key="chat_history", chat_memory=doc_msgs, return_messages=True)
 
     # Setup LLM and QA chain
+
+    llm = HuggingFaceEndpoint(
+        repo_id=llama3p1_70B,
+        max_new_tokens=700,
+        do_sample=False,
+        temperature=0.01,
+        repetition_penalty=1.1,
+        return_full_text=False,
+        top_p=0.2,
+        top_k=40,
+        huggingfacehub_api_token=st.secrets["huggingfacehub_api_token"]
+    )
     qa_chain = ConversationalRetrievalChain.from_llm(
         llm, retriever=retriever, memory=memory, verbose=True
     )
