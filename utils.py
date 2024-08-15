@@ -12,18 +12,27 @@ import json
 from datetime import date
 from langchain_community.utilities import WikipediaAPIWrapper
 from langchain_community.tools import BraveSearch
+import pandas as pd
 
 url = "https://huggingface.co/docs/hub/en/security-tokens"
-text = """🐶 is an all-round AI chatdog built with LangChain and Streamlit. Some of its woofwoof capabilities:\n
+text = """Cosmo is an all-round AI chatdog built with LangChain and Streamlit,
+powered by Meta-Llama-3-70B-Instruct language model and HuggingFace🤗 inference endpoint.\n
+
+Some of its woofwoof capabilities:\n
 - Document-Question-Answering\n
 - Sinagpore News Headlines\n
 - US Stock Price Quotes\n
 - Singapore Weather Forecast\n
-- Summarize|Generate Texts\n
+- Summarize & Generate Texts\n
 - Coding Assistance\n
-🐶 is powered by Meta-Llama-3-70B-Instruct language model and HuggingFace🤗 inference endpoint.\n
 """
 
+creative_factual_intro = """
+Cosmo the chatdog can be creative or factual.\n 
+:blue[Be Creative] is excellent for crafting opening speech, marketing slogan etc.\n
+:blue[Be Factual] is useful for updated news, events, weather or latest information in general.\n
+Choose one to get started.
+"""
 
 template = """You are Cosmo the chatdog who provides informative answers to users.
 
@@ -38,8 +47,6 @@ Present your answers on financial metrics in a table.
 For weather forecast of more than one day, group your answer into a table.
 
 Always cite the url where you find the answers, on a newline at the end.
-
-
 
 Answer the following questions as best you can.
 You have access to the following tools:
@@ -229,6 +236,108 @@ time_tool = StructuredTool.from_function(
 )
 
 
+def graduates_in_healthcare(text: str):
+    limit = 2000
+    id = "d_943ba9a3d9b1e0e89ea5cbf8c58c94da"
+    url = f"https://data.gov.sg/api/action/datastore_search?resource_id={id}&limit={limit}"
+    response = requests.get(url)
+    json_data = response.json()
+    records = json_data['result']['records']
+    return pd.DataFrame(records).to_string()
+
+
+graduates_in_healthcare_tool = StructuredTool.from_function(
+    func=graduates_in_healthcare,
+    name='top 4 conditions polyclinic',
+    description="use this tool to find the number of graduates in healthcare in singapore",
+)
+
+
+def top_4_conditions_polyclinic(text: str):
+    limit = 2000
+    id = "d_a1ab62d65ae87130925c1f52a1d0c79d"
+    url = f"https://data.gov.sg/api/action/datastore_search?resource_id={id}&limit={limit}"
+    response = requests.get(url)
+    json_data = response.json()
+    records = json_data['result']['records']
+    return pd.DataFrame(records).to_string()
+
+
+top_4_conditions_polyclinic_tool = StructuredTool.from_function(
+    func=top_4_conditions_polyclinic,
+    name='top 4 conditions polyclinic',
+    description="use this tool to find top 4 conditions of polyclinic attendances in singapore",
+)
+
+
+def no_doctors(text: str):
+    limit = 2000
+    id = "d_4a15de043d48bf829b6d97c6068bbf03"
+    url = f"https://data.gov.sg/api/action/datastore_search?resource_id={id}&limit={limit}"
+    response = requests.get(url)
+    json_data = response.json()
+    records = json_data['result']['records']
+    return pd.DataFrame(records).to_string()
+
+
+no_doctors_tool = StructuredTool.from_function(
+    func=no_doctors,
+    name='number of doctors',
+    description="use this tool to find the number of doctors in singapore",
+)
+
+
+def mediasave_acc_bal(text: str):
+    limit = 2000
+    id = "d_2ed23324aeac97609c4e16299ab05ffc"
+    url = f"https://data.gov.sg/api/action/datastore_search?resource_id={id}&limit={limit}"
+    response = requests.get(url)
+    json_data = response.json()
+    records = json_data['result']['records']
+    return pd.DataFrame(records).to_string()
+
+
+mediasave_acc_bal_tool = StructuredTool.from_function(
+    func=mediasave_acc_bal,
+    name='mediasave account balance',
+    description="use this tool to find the mediasave account balance and withdrawal in singapore",
+)
+
+
+def hospital_admission_outpatient_attendances(text: str):
+    limit = 2000
+    id = "d_a5267c58f60b20f8e04576261abfac93"
+    url = f"https://data.gov.sg/api/action/datastore_search?resource_id={id}&limit={limit}"
+    response = requests.get(url)
+    json_data = response.json()
+    records = json_data['result']['records']
+    return pd.DataFrame(records).to_string()
+
+
+hospital_admission_outpatient_tool = StructuredTool.from_function(
+    func=hospital_admission_outpatient_attendances,
+    name='hospital_admission_outpatient',
+    description="use this tool to find the hospitals admissions and outpatient attendance in singapore",
+)
+
+
+def causes_of_death(text: str):
+    limit = 2000
+    id = "d_48143a2b16027afcadeb362352b0266a"
+    url = f"https://data.gov.sg/api/action/datastore_search?resource_id={id}&limit={limit}"
+    response = requests.get(url)
+    json_data = response.json()
+    records = json_data['result']['records']
+    return pd.DataFrame(records).to_string()
+
+
+causes_of_death_tool = StructuredTool.from_function(
+    func=causes_of_death,
+    name='causes_of_death',
+    description="use this tool to find the principal causes of death in singapore",
+)
+
+
 # remove linechart_tool
 tools = [news_tool,
          stockPrice_tool,
@@ -238,7 +347,13 @@ tools = [news_tool,
          weather4days_tool,
          time_tool,
          wikipedia_tool,
-         braveSearch_tool
+         braveSearch_tool,
+         causes_of_death_tool,
+         hospital_admission_outpatient_tool,
+         mediasave_acc_bal_tool,
+         no_doctors_tool,
+         top_4_conditions_polyclinic_tool,
+         graduates_in_healthcare_tool
          ]
 
 agent_kwargs = {
