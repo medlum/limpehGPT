@@ -14,6 +14,14 @@ from langchain_community.utilities import WikipediaAPIWrapper
 from langchain_community.tools import BraveSearch
 import pandas as pd
 
+
+css = r'''
+    <style>
+        [data-testid="stVerticalBlock] {border: 0px}
+    </style>
+'''
+
+
 url = "https://huggingface.co/docs/hub/en/security-tokens"
 text = """Cosmo is an all-round AI chatdog built with LangChain and Streamlit,
 powered by Meta-Llama-3-70B-Instruct language model and HuggingFace🤗 inference endpoint.\n
