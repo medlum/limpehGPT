@@ -25,9 +25,8 @@ from langchain.schema import (
     SystemMessage,
 )
 
-
-# st.set_page_config(page_title="Cosmo the ChatDog",
-#                   layout="wide", page_icon="🐶")
+st.set_page_config(page_title="Cosmo the ChatDog",
+                   layout="wide", page_icon="🐶")
 
 # ---- set up history for chat and document messages ----#
 chat_msgs = StreamlitChatMessageHistory(key="special_app_key")
@@ -76,19 +75,17 @@ def creative_mode_button():
 
 
 # ---- Set up Header: Curiosity Starts Here ---- #
-st.markdown("""
-<style>
-.big-font {
-    font-size:1.4rem !important;
-}
-</style>
-""", unsafe_allow_html=True)
+# st.markdown("""
+# <style>
+# .big-font {
+#    font-size:1.4rem !important;
+# }
+# </style>
+# """, unsafe_allow_html=True)
 
-st.markdown('<p class="big-font">Curiosity Starts Here...</p>',
+st.markdown("<p style='text-align: center; font-size:2rem'>Curiosity Starts Here</p>",
             unsafe_allow_html=True)
 
-
-st.markdown(css, unsafe_allow_html=True)
 # ---- set up lottie icon ---- #
 url = "https://lottie.host/4ef3b238-96dd-4078-992a-50f5a41d255c/mTUUT5AegN.json"
 url = "https://lottie.host/ec0907dc-d6ac-4ecf-b267-e98d2b1c558d/eGhP7jwBj3.json"
@@ -162,23 +159,6 @@ if not uploaded_files:
         # clear previous history messages
         chat_msgs.clear()
 
-        # create example questions as button
-
-        # def on_button_click(button):
-        #    st.session_state.last_clicked = button
-
-        # st.write(":blue[Some factual prompt examples...]")
-
-        # with st.container(height=80):
-        #    for n, qn in enumerate(options):
-        # st.write(qn)
-        # st.button(qn, on_click=on_button_click,
-        #          kwargs={"button": qn})
-
-        # if "last_clicked" in st.session_state:
-        #    prompt = str(st.session_state.last_clicked)
-        #    st.write(str(st.session_state.last_clicked).upper())
-
         # Set up LLM for factual mode
         llm = HuggingFaceEndpoint(
             repo_id=llama3p1_70B,
@@ -226,7 +206,7 @@ if not uploaded_files:
 
                 with st.container(border=True, height=400):
 
-                    st.chat_message("ai").write_stream(stream_data)
+                    st.write_stream(stream_data)
                     st_copy_to_clipboard(response)
 
             except HfHubHTTPError as error:
@@ -380,4 +360,3 @@ factual_mode = col2.button(
     'Be Factual', use_container_width=True, key='search', on_click=factual_mode_button)
 
 st.sidebar.write(footer_html, unsafe_allow_html=True)
-
