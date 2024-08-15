@@ -79,7 +79,7 @@ def creative_mode_button():
 st.markdown("""
 <style>
 .big-font {
-    font-size:1.6rem !important;
+    font-size:1.4rem !important;
 }
 </style>
 """, unsafe_allow_html=True)
