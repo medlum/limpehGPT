@@ -172,11 +172,11 @@ if not uploaded_files:
         # def on_button_click(button):
         #    st.session_state.last_clicked = button
 
-        st.write(":blue[Some factual prompt examples...]")
+        #st.write(":blue[Some factual prompt examples...]")
 
-        with st.container(height=80):
-            for n, qn in enumerate(options):
-                st.write(qn)
+        #with st.container(height=80):
+        #    for n, qn in enumerate(options):
+        #        st.write(qn)
                 # st.button(qn, on_click=on_button_click,
                 #          kwargs={"button": qn})
 
