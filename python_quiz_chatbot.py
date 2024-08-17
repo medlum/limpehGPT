@@ -107,5 +107,6 @@ for msg in chat_msgs.messages:
 
 
 if question := st.chat_input("Your Answer..."):
-    response = chat_llm_chain.predict(human_input=question+"<|eot_id|>")
-    st.chat_message("ai").write(response)
+    with st.spinner("Grrrr..."):
+        response = chat_llm_chain.predict(human_input=question+"<|eot_id|>")
+        st.chat_message("ai").write(response)
