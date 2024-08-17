@@ -100,7 +100,7 @@ st_lottie(url_json,
           key='bot'  # Uniquely identify the animation
           )
 
-st.markdown("<p style='text-align: left; font-size:2rem'>The Python's Quiz Show</p>",
+st.markdown("<p style='text-align: left; font-size:2rem'>Quiz Show</p>",
             unsafe_allow_html=True)
 
 for msg in chat_msgs.messages:
