@@ -37,8 +37,8 @@ llm = HuggingFaceEndpoint(
     temperature=0.70,
     repetition_penalty=1.1,
     return_full_text=False,
-    top_p=0.2,
-    top_k=40,
+    top_p=0.4,
+    top_k=80,
     huggingfacehub_api_token=st.secrets["huggingfacehub_api_token"]
 )
 
