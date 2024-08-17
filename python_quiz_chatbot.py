@@ -21,6 +21,8 @@ import time
 import requests
 from streamlit_lottie import st_lottie
 
+st.set_page_config(page_title="Cosmo the QuizDog",
+                   layout="wide", page_icon="🐶")
 
 model_mistral8B = "mistralai/Mixtral-8x7B-Instruct-v0.1"
 llama3_70B = "meta-llama/Meta-Llama-3-70B-Instruct"
