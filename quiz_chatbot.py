@@ -16,8 +16,8 @@ import requests
 from streamlit_lottie import st_lottie
 import re
 
-st.set_page_config(page_title="Cosmo the QuizDog",
-                   layout="wide", page_icon="🐶")
+st.set_page_config(page_title="The Quiz Bot",
+                   layout="wide", page_icon="🤖")
 
 # HuggingFace Modelcard
 model_mistral8B = "mistralai/Mixtral-8x7B-Instruct-v0.1"
