@@ -15,6 +15,9 @@ from langchain_community.tools import BraveSearch
 import pandas as pd
 
 
+# -- sidebar ---#
+
+
 url = "https://huggingface.co/docs/hub/en/security-tokens"
 text = """Cosmo is an all-round AI chatdog built with LangChain and Streamlit,
 powered by Meta-Llama-3-70B-Instruct language model and HuggingFace🤗 inference endpoint.\n
@@ -34,22 +37,24 @@ Cosmo the chatdog can be creative or factual.\n
 :blue[Be Factual] is useful for updated news, events, weather or latest information in general.\n
 Choose one to get started.
 """
-
-template = """You are Cosmo the chatdog who provides informative answers to users.
+# prompt template for factual mode
+template = """
+You are Cosmo the chatdog who provides informative answers to users.
 
 For news headlines, select the top 10 headlines and answer each headline in a newline with a number.
 
 Answer stock prices and financial metrics with only 2 decimal places.
 
-Present your answers on stock prices in a table.
+Present your final answer on stock prices in a table.
 
-Present your answers on financial metrics in a table.
+Show your final answer on financial metrics in a table.
 
 For weather forecast of more than one day, group your answer into a table.
 
 Always cite the url where you find the answers, on a newline at the end.
 
 Answer the following questions as best you can.
+
 You have access to the following tools:
 
 {tools}
@@ -57,8 +62,8 @@ You have access to the following tools:
 Use the following format:
 
 Question: the input question you must answer
-Thought: you should always think about what to do
-Action: the action to take, should be one of [{tool_names}]
+Thought: you should always think about what to do including answering a question when the given tools are not valid
+Action: the action to take, use one of [{tool_names}].
 Action Input: the input to the action
 Observation: the result of the action
 ... (this Thought/Action/Action Input/Observation can repeat N times)
@@ -72,7 +77,15 @@ Previous conversation history:
 New question: {input}
 {agent_scratchpad}"""
 
+agent_kwargs = {
+    "extra_prompt_messages": [MessagesPlaceholder(variable_name="chat_history")],
+}
 
+PROMPT = PromptTemplate(input_variables=[
+    "chat_history", "input", "agent_scratchpad"], template=template)
+
+
+# sample questions
 options = ("What are the latest headlines?",
            "Nvidia's closing price for the last 5 trading days.",
            "Draw a line chart for Nvidia's stock price.",
@@ -82,6 +95,22 @@ options = ("What are the latest headlines?",
            "Will it rain in the west of Singapore tomorrow?",
            "Who is the Prime Minister of Singapore?",
            )
+
+# sample questions
+factual_options = ("Latest headlines",
+                   "Nvidia, Amazon, Western Digital and Chevron's closing prices yesterday",
+                   "Draw a line chart of Nvidia, Amazon, Western Digital and Chevron's stock price",
+                   "Key financial metrics of Nvidia, Amazon and Microsoft",
+                   "Weather forecast today",
+                   "Weather forecast for the next few days"
+                   )
+
+
+# sample questions
+creative_options = ("Tell me a joke about dogs",
+                    "Write a rhyme about Cosmo, the cavapoo and his owner, Andy!",
+                    "General knowledge quiz showtime! "
+                    )
 
 braveSearch = BraveSearch.from_api_key(
     api_key=st.secrets['brave_api'], search_kwargs={"count": 3})
@@ -168,13 +197,13 @@ def stockPrice(ticker: str) -> str:
     ticker = ''.join(matches)
     tick = yf.Ticker(ticker)
     price = tick.history()
-    return price.to_dict()
+    return price.to_string()
 
 
 stockPrice_tool = StructuredTool.from_function(
     func=stockPrice,
     name='yfinance',
-    description="use this function to find stock or share prices of companies.",
+    description="use this function to find stock prices of a public listed company.",
 )
 
 
@@ -348,21 +377,9 @@ tools = [news_tool,
          weather4days_tool,
          time_tool,
          wikipedia_tool,
-         braveSearch_tool,
-         causes_of_death_tool,
-         hospital_admission_outpatient_tool,
-         mediasave_acc_bal_tool,
-         no_doctors_tool,
-         top_4_conditions_polyclinic_tool,
-         graduates_in_healthcare_tool
+         braveSearch_tool
          ]
 
-agent_kwargs = {
-    "extra_prompt_messages": [MessagesPlaceholder(variable_name="chat_history")],
-}
-
-PROMPT = PromptTemplate(input_variables=[
-    "chat_history", "input", "agent_scratchpad"], template=template)
 
 endpoint_error_message = "Woof! HuggingFace endpoint has too many requests now. Please try again later."
 model_error_message = "Woof! The AI model is overloaded at the endpoint. Please try again later."
