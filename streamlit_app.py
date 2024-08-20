@@ -195,7 +195,7 @@ if not uploaded_files:
 
             try:
                 with st.spinner("Grrrr..."):
-                    response = executor.invoke({'input': prompt})
+                    response = executor.invoke({'input': prompt+'<|eot_id|>'})
                     response = str(
                         response['output'].replace('<|eot_id|>', ''))
 
