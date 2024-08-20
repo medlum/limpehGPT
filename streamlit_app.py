@@ -211,10 +211,10 @@ if st.session_state.creative_mode:
         task="text-generation",
         max_new_tokens=1000,
         do_sample=False,
-        temperature=1.5,
+        temperature=1.4,
         repetition_penalty=1.3,
         return_full_text=False,
-        top_p=0.3,
+        top_p=0.2,
         top_k=100,
         huggingfacehub_api_token=st.secrets["huggingfacehub_api_token"]
     )
