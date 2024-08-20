@@ -34,7 +34,7 @@ llm = HuggingFaceEndpoint(
     repetition_penalty=1.1,
     return_full_text=False,
     top_p=0.4,
-    top_k=100,
+    top_k=300,
     huggingfacehub_api_token=st.secrets["huggingfacehub_api_token"]
 )
 
