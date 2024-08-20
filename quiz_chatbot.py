@@ -33,8 +33,8 @@ llm = HuggingFaceEndpoint(
     temperature=1.6,
     repetition_penalty=1.1,
     return_full_text=False,
-    top_p=0.4,
-    top_k=300,
+    top_k=400,
+    top_p=0.5,
     huggingfacehub_api_token=st.secrets["huggingfacehub_api_token"]
 )
 
@@ -43,7 +43,7 @@ prompt = ChatPromptTemplate.from_messages(
     [
         SystemMessage(
             content="""
-            - You are a chatbot that specialized in quiz questions on General knowledge, Python programming, Microsoft Excel, Statistics and Economics for beginners. 
+            - You are a chatbot that specialized in quiz questions on General knowledge,Python programming, Microsoft Excel, Statistics and Economics. 
             - Always begin your conversation by asking which topic the user would like to quiz.
             - The quiz should contain different levels of difficulty.
             - Keep track of the number of right and wrong answers.
@@ -157,3 +157,4 @@ if question := st.chat_input("Your Answer..."):
             st.chat_message("ai").write(response)
         else:
             st.chat_message("ai").write(response)
+
