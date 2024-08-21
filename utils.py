@@ -45,7 +45,7 @@ For news headlines, select the top 10 headlines and answer each headline in a ne
 
 Answer stock prices and financial metrics with only 2 decimal places.
 
-Present the final answer on stock prices in a table.
+Put the final answer of financial metrics in a table.
 
 Always cite the url where you find the answers on a newline at the end.
 
@@ -73,7 +73,7 @@ Previous conversation history:
 New question: {input}
 {agent_scratchpad}"""
 
-
+# Present the final answer on stock prices in a table.
 # Show your final answer on financial metrics in a table.
 # For weather forecast of more than one day, group your answer into a table.
 agent_kwargs = {
@@ -97,9 +97,9 @@ options = ("What are the latest headlines?",
 
 # sample questions
 factual_options = ("Latest headlines in Singapore",
-                   "Nvidia, Amazon, Western Digital and Chevron's last closing prices",
-                   "Draw a line chart of Nvidia, Amazon, Western Digital and Chevron's stock price",
-                   "Key financial metrics of Nvidia, Amazon and Microsoft",
+                   "Nvidia's last closing prices",
+                   "Draw a line chart of Nvidia stock price",
+                   "Find the key financial metrics of Nvidia",
                    "How's the weather today?",
                    "Weather forecast for the next few days"
                    )
@@ -266,108 +266,6 @@ time_tool = StructuredTool.from_function(
     func=time,
     name='today_date',
     description="Returns todays date, use this for any questions related to knowing todays date.The input should always be an empty string, and this function will always return todays date - any date mathmatics should occur outside this function."
-)
-
-
-def graduates_in_healthcare(text: str):
-    limit = 2000
-    id = "d_943ba9a3d9b1e0e89ea5cbf8c58c94da"
-    url = f"https://data.gov.sg/api/action/datastore_search?resource_id={id}&limit={limit}"
-    response = requests.get(url)
-    json_data = response.json()
-    records = json_data['result']['records']
-    return pd.DataFrame(records).to_string()
-
-
-graduates_in_healthcare_tool = StructuredTool.from_function(
-    func=graduates_in_healthcare,
-    name='top 4 conditions polyclinic',
-    description="use this tool to find the number of graduates in healthcare in singapore",
-)
-
-
-def top_4_conditions_polyclinic(text: str):
-    limit = 2000
-    id = "d_a1ab62d65ae87130925c1f52a1d0c79d"
-    url = f"https://data.gov.sg/api/action/datastore_search?resource_id={id}&limit={limit}"
-    response = requests.get(url)
-    json_data = response.json()
-    records = json_data['result']['records']
-    return pd.DataFrame(records).to_string()
-
-
-top_4_conditions_polyclinic_tool = StructuredTool.from_function(
-    func=top_4_conditions_polyclinic,
-    name='top 4 conditions polyclinic',
-    description="use this tool to find top 4 conditions of polyclinic attendances in singapore",
-)
-
-
-def no_doctors(text: str):
-    limit = 2000
-    id = "d_4a15de043d48bf829b6d97c6068bbf03"
-    url = f"https://data.gov.sg/api/action/datastore_search?resource_id={id}&limit={limit}"
-    response = requests.get(url)
-    json_data = response.json()
-    records = json_data['result']['records']
-    return pd.DataFrame(records).to_string()
-
-
-no_doctors_tool = StructuredTool.from_function(
-    func=no_doctors,
-    name='number of doctors',
-    description="use this tool to find the number of doctors in singapore",
-)
-
-
-def mediasave_acc_bal(text: str):
-    limit = 2000
-    id = "d_2ed23324aeac97609c4e16299ab05ffc"
-    url = f"https://data.gov.sg/api/action/datastore_search?resource_id={id}&limit={limit}"
-    response = requests.get(url)
-    json_data = response.json()
-    records = json_data['result']['records']
-    return pd.DataFrame(records).to_string()
-
-
-mediasave_acc_bal_tool = StructuredTool.from_function(
-    func=mediasave_acc_bal,
-    name='mediasave account balance',
-    description="use this tool to find the mediasave account balance and withdrawal in singapore",
-)
-
-
-def hospital_admission_outpatient_attendances(text: str):
-    limit = 2000
-    id = "d_a5267c58f60b20f8e04576261abfac93"
-    url = f"https://data.gov.sg/api/action/datastore_search?resource_id={id}&limit={limit}"
-    response = requests.get(url)
-    json_data = response.json()
-    records = json_data['result']['records']
-    return pd.DataFrame(records).to_string()
-
-
-hospital_admission_outpatient_tool = StructuredTool.from_function(
-    func=hospital_admission_outpatient_attendances,
-    name='hospital_admission_outpatient',
-    description="use this tool to find the hospitals admissions and outpatient attendance in singapore",
-)
-
-
-def causes_of_death(text: str):
-    limit = 2000
-    id = "d_48143a2b16027afcadeb362352b0266a"
-    url = f"https://data.gov.sg/api/action/datastore_search?resource_id={id}&limit={limit}"
-    response = requests.get(url)
-    json_data = response.json()
-    records = json_data['result']['records']
-    return pd.DataFrame(records).to_string()
-
-
-causes_of_death_tool = StructuredTool.from_function(
-    func=causes_of_death,
-    name='causes_of_death',
-    description="use this tool to find the principal causes of death in singapore",
 )
 
 
