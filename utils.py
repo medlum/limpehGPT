@@ -32,7 +32,7 @@ Some of its woofwoof capabilities:\n
 """
 
 creative_factual_intro = """
-Cosmo the chatdog can be creative or factual.\n 
+Cosmo the chatdog can be creative or factual.\n
 :blue[Be Creative] is excellent for crafting opening speech, marketing slogan etc.\n
 :blue[Be Factual] is useful for updated news, events, weather or latest information in general.\n
 Choose one to get started.
@@ -45,13 +45,9 @@ For news headlines, select the top 10 headlines and answer each headline in a ne
 
 Answer stock prices and financial metrics with only 2 decimal places.
 
-Present your final answer on stock prices in a table.
+Present the final answer on stock prices in a table.
 
-Show your final answer on financial metrics in a table.
-
-For weather forecast of more than one day, group your answer into a table.
-
-Always cite the url where you find the answers, on a newline at the end.
+Always cite the url where you find the answers on a newline at the end.
 
 Answer the following questions as best you can.
 
@@ -62,8 +58,8 @@ You have access to the following tools:
 Use the following format:
 
 Question: the input question you must answer
-Thought: you should always think about what to do including answering a question when the given tools are not valid
-Action: the action to take, use one of [{tool_names}].
+Thought: you should always think about what to do
+Action: the action to take, use one of [{tool_names}]
 Action Input: the input to the action
 Observation: the result of the action
 ... (this Thought/Action/Action Input/Observation can repeat N times)
@@ -77,6 +73,9 @@ Previous conversation history:
 New question: {input}
 {agent_scratchpad}"""
 
+
+# Show your final answer on financial metrics in a table.
+# For weather forecast of more than one day, group your answer into a table.
 agent_kwargs = {
     "extra_prompt_messages": [MessagesPlaceholder(variable_name="chat_history")],
 }
@@ -97,11 +96,11 @@ options = ("What are the latest headlines?",
            )
 
 # sample questions
-factual_options = ("Latest headlines",
-                   "Nvidia, Amazon, Western Digital and Chevron's closing prices yesterday",
+factual_options = ("Latest headlines in Singapore",
+                   "Nvidia, Amazon, Western Digital and Chevron's last closing prices",
                    "Draw a line chart of Nvidia, Amazon, Western Digital and Chevron's stock price",
                    "Key financial metrics of Nvidia, Amazon and Microsoft",
-                   "Weather forecast today",
+                   "How's the weather today?",
                    "Weather forecast for the next few days"
                    )
 
@@ -109,7 +108,11 @@ factual_options = ("Latest headlines",
 # sample questions
 creative_options = ("Tell me a joke about dogs",
                     "Write a rhyme about Cosmo, the cavapoo and his owner, Andy!",
-                    "General knowledge quiz showtime! "
+                    "Start a fun quiz!",
+                    "Why is the sky blue?",
+                    "Is it morally right to kill mosquitoes?",
+                    "Do you think that I think you have consciousness?",
+                    "Can curiosity kill a cat?"
                     )
 
 braveSearch = BraveSearch.from_api_key(
@@ -178,7 +181,7 @@ def CNAheadlines(genre: str):
 news_tool = StructuredTool.from_function(
     func=CNAheadlines,
     name="CNA_headlines",
-    description="use this function to provide breaking news, headlines of the world, business and singapore."
+    description="use this function to provide news, headlines of the world, business and singapore."
 )
 
 search = DuckDuckGoSearchRun()
