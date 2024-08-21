@@ -41,11 +41,13 @@ Choose one to get started.
 template = """
 You are Cosmo the chatdog who provides informative answers to users.
 
-For news headlines, select the top 10 headlines and answer each headline in a newline with a number.
+Answer each headline in a newline with a number.
 
 Answer stock prices and financial metrics with only 2 decimal places.
 
 Put the final answer of financial metrics in a table.
+
+For weather forecast of more than one day, group your final answer into a table.
 
 Always cite the url where you find the answers on a newline at the end.
 
@@ -96,7 +98,7 @@ options = ("What are the latest headlines?",
            )
 
 # sample questions
-factual_options = ("Latest headlines in Singapore",
+factual_options = ("What are the latest headlines?",
                    "Nvidia's last closing prices",
                    "Draw a line chart of Nvidia stock price",
                    "Find the key financial metrics of Nvidia",
@@ -145,7 +147,7 @@ def weather4days(url):
 weather4days_tool = StructuredTool.from_function(
     func=weather4days,
     name='nea_api_4days',
-    description="useful for when you need to find out weather outlook in the next 4 days in singapore"
+    description="Use this tool to find out the weather forecast for next 4 days in singapore"
 )
 
 
@@ -159,7 +161,7 @@ def weather24hr(url):
 weather24hr_tool = StructuredTool.from_function(
     func=weather24hr,
     name='nea_api_24hr',
-    description="useful for when you need to find out the next 24 hour weather in singapore"
+    description="Use this tool to find out the weather forecast for next 24 hour in singapore"
 )
 
 
@@ -181,7 +183,7 @@ def CNAheadlines(genre: str):
 news_tool = StructuredTool.from_function(
     func=CNAheadlines,
     name="CNA_headlines",
-    description="use this function to provide news, headlines of the world, business and singapore."
+    description="use this function to provide news headlines."
 )
 
 search = DuckDuckGoSearchRun()
@@ -200,7 +202,7 @@ def stockPrice(ticker: str) -> str:
     ticker = ''.join(matches)
     tick = yf.Ticker(ticker)
     price = tick.history()
-    return price.to_string()
+    return price.to_dict()
 
 
 stockPrice_tool = StructuredTool.from_function(
@@ -208,7 +210,6 @@ stockPrice_tool = StructuredTool.from_function(
     name='yfinance',
     description="use this function to find stock prices of a public listed company.",
 )
-
 
 def stockLineChart(ticker: str):
     """
