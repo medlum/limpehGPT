@@ -156,7 +156,7 @@ if btn == "Factual".lower():
         max_new_tokens=700,
         do_sample=False,
         temperature=0.01,
-        repetition_penalty=1.2,
+        repetition_penalty=1.1,
         return_full_text=False,
         top_p=0.2,
         top_k=40,
@@ -175,7 +175,7 @@ if btn == "Factual".lower():
         agent=react_agent,
         tools=tools,
         memory=factual_conversational_memory,
-        max_iterations=15,
+        max_iterations=10,
         handle_parsing_errors=True,
         verbose=True,
         agent_kwargs=agent_kwargs,
@@ -195,14 +195,14 @@ if btn == "Factual".lower():
     if prompt:
         st.markdown(f":red[{prompt.upper()}]")
 
-        try:
-            with st.container(border=True, height=200):
+        with st.container(border=True, height=200):
+            try:
 
                 with st.spinner("Grrrr..."):
                     response = executor.invoke(
                         {'input': f'{prompt}<|eot_id|>'})
                     response = str(
-                        response['output'].replace('<|eot_id|>', '').replace('<|eom_id|>', ''))
+                        response['output'].replace('<|eot_id|>', ''))
 
                     def stream_data():
                         for word in response.split(" "):
@@ -212,18 +212,18 @@ if btn == "Factual".lower():
                     st.write_stream(stream_data)
                     st_copy_to_clipboard(response)
 
-        except HfHubHTTPError as error:
-            st.write(endpoint_error_message)
+            except HfHubHTTPError as error:
+                st.write(endpoint_error_message)
 
-        except OverloadedError as error:
-            st.write(model_error_message)
+            except OverloadedError as error:
+                st.write(model_error_message)
 
-        except RatelimitException as error:
-            st.write(
-                "Woof! I've reached rate limit for using DuckDuckGo to perform online search. Come back later...")
-        except ValidationError as error:
-            st.write(
-                "Woof! I can't handle too much information, try again by reducing your request.")
+            except RatelimitException as error:
+                st.write(
+                    "Woof! I've reached rate limit for using DuckDuckGo to perform online search. Come back later...")
+            except ValidationError as error:
+                st.write(
+                    "Woof! I can't handle too much information, try again by reducing your request.")
 
 
 # ----- creative button is clicked ------#
