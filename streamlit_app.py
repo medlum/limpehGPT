@@ -23,7 +23,7 @@ from langchain_core.prompts import (
     MessagesPlaceholder,
 )
 from langchain.chains import LLMChain
-
+import streamlit_antd_components as sac
 # ---------set up page config -------------#
 st.set_page_config(page_title="Cosmo-Chat-Dog",
                    layout="wide", page_icon="🐶")
@@ -64,63 +64,96 @@ if len(creative_chat_msgs.messages) == 0:
 
 # ---- App Header: Curiosity Starts Here ---- #
 
-st.markdown("<p style='text-align: center; font-size:1.3rem; color:#2ecbf2'>Curiosity Starts Here</p>",
+st.markdown("<p style='text-align: center; font-size:1.4rem; color:#2ecbf2'>INTELLIGENCE STARTS HERE</p>",
             unsafe_allow_html=True)
 
 # ---- set up lottie icon ---- #
 url = "https://lottie.host/ec0907dc-d6ac-4ecf-b267-e98d2b1c558d/eGhP7jwBj3.json"
 url = requests.get(url)
 
-url_json = dict()
-if url.status_code == 200:
-    url_json = url.json()
-else:
-    print("Error in the URL")
-
-
-st_lottie(url_json,
-          reverse=True,  # change the direction
-          height=130,  # height and width
-          width=130,
-          speed=1,  # speed
-          loop=True,  # run forever like a gif
-          quality='high',  # options include "low" and "medium"
-          key='bot'  # Uniquely identify the animation
-          )
+# url_json = dict()
+# if url.status_code == 200:
+#    url_json = url.json()
+# else:
+#    print("Error in the URL")
+#
+#
+# st_lottie(url_json,
+#          reverse=True,  # change the direction
+#          height=130,  # height and width
+#          width=130,
+#          speed=1,  # speed
+#          loop=True,  # run forever like a gif
+#          quality='high',  # options include "low" and "medium"
+#          key='bot'  # Uniquely identify the animation
+#          )
 
 # ----- Create creative and factual ------#
+st.session_state.mode_btn = None
 
-col1, col2 = st.columns(2)
+btn = sac.segmented(
+    items=[
+        sac.SegmentedItem(label='creative'),
+        sac.SegmentedItem(label='factual'),
+    ], align='center', size="xs",
+)
 
-creative_mode = col1.button(
-    'Be Creative', use_container_width=True, key='creative',  on_click=creative_mode_button)
+# btn = sac.buttons(items=[
+#    sac.SegmentedItem(icon=sac.BsIcon(
+#        name='lamp', size=20), label="CREATIVE"),
+#    sac.SegmentedItem(icon=sac.BsIcon(
+#        name='geo-fill', size=20), label="FACTUAL"),
+# ], index=None, align='center', gap="md",  variant="text",  color="#2ecbf2", size="xs")
 
-factual_mode = col2.button(
-    'Be Factual', use_container_width=True, key='search', on_click=factual_mode_button)
+
+# st.session_state.mode_btn = btn
+# col1, col2 = st.columns([1, 1])
+#
+# creative_mode = st.button(
+#    'Be Creative', use_container_width=True, key='creative',  on_click=creative_mode_button)
+#
+# factual_mode = st.button(
+#    'Be Factual', use_container_width=True, key='search', on_click=factual_mode_button)
 
 # --------- llm model and question button ---------#
 llama3p1_70B = "meta-llama/Meta-Llama-3.1-70B-Instruct"
 st.session_state.question_button = None
 
+# -------- reset selectbox selection ---------#
+
+
+def reset_selectbox():
+    # key = 'selection' is found in st.selectbox
+    # which is the session_state variable
+    st.session_state.selection = None
+
+
 # --------- factual button clicked -----------#
-if st.session_state.factual_mode:
+if btn == "Factual".lower():
+    # if st.session_state.factual_mode:
 
     # clear chat messages from creative mode
     creative_chat_msgs.clear()
+    st.session_state.question_button = st.selectbox(label="",
+                                                    options=factual_options,
+                                                    placeholder="Factual Prompts",
+                                                    key="selection",
+                                                    index=None,
+                                                    )
 
-    with st.sidebar:
-        st.markdown(":blue[Select a factual prompt]")
-
-        # create button for sample questions in factual_options
-        with st.container(height=400):
-            for q in factual_options:
-                if st.button(q):
-                    st.session_state.question_button = q
+#    with st.sidebar:
+#        st.markdown(":blue[Select a factual prompt]")
+#
+#        # create button for sample questions in factual_options
+#        with st.container(height=400):
+#            for q in factual_options:
+#                if st.button(q):
+#                    st.session_state.question_button = q
 
     # Set up LLM for factual mode
-    llm = HuggingFaceEndpoint(
+    llm_factual = HuggingFaceEndpoint(
         repo_id=llama3p1_70B,
-        max_new_tokens=1000,
+        max_new_tokens=700,
         do_sample=False,
         temperature=0.01,
         repetition_penalty=1.2,
@@ -136,7 +169,7 @@ if st.session_state.factual_mode:
         k=factual_chat_history_size,
         return_messages=True)
 
-    react_agent = create_react_agent(llm, tools, PROMPT)
+    react_agent = create_react_agent(llm_factual, tools, PROMPT)
 
     executor = AgentExecutor(
         agent=react_agent,
@@ -153,30 +186,31 @@ if st.session_state.factual_mode:
         # enable st.chat_input() at the bottom
         # when options from factual_options are selected
         st.session_state.question_button = st.chat_input(
-            "Woof! Cosmo is in factual mode!", key='factual_prompt')
+            "Woof! Cosmo is in factual mode!", key='factual_prompt', on_submit=reset_selectbox)
 
     else:
         prompt = st.chat_input(
             "Woof! Cosmo is in factual mode!", key='factual_prompt')
 
     if prompt:
-        st.markdown(f":blue[{prompt.upper()}]")
+        st.markdown(f":red[{prompt.upper()}]")
 
         try:
-            with st.spinner("Grrrr..."):
-                response = executor.invoke({'input': f'{prompt}<|eot_id|>'})
-                response = str(
-                    response['output'].replace('<|eot_id|>', '').replace('<|eom_id|>', ''))
+            with st.container(border=True, height=200):
 
-            def stream_data():
-                for word in response.split(" "):
-                    yield word + " "
-                    time.sleep(0.04)
+                with st.spinner("Grrrr..."):
+                    response = executor.invoke(
+                        {'input': f'{prompt}<|eot_id|>'})
+                    response = str(
+                        response['output'].replace('<|eot_id|>', '').replace('<|eom_id|>', ''))
 
-            with st.container(border=True, height=400):
+                    def stream_data():
+                        for word in response.split(" "):
+                            yield word + " "
+                            time.sleep(0.04)
 
-                st.write_stream(stream_data)
-                st_copy_to_clipboard(response)
+                    st.write_stream(stream_data)
+                    st_copy_to_clipboard(response)
 
         except HfHubHTTPError as error:
             st.write(endpoint_error_message)
@@ -193,20 +227,28 @@ if st.session_state.factual_mode:
 
 
 # ----- creative button is clicked ------#
-if st.session_state.creative_mode:
+if btn == "Creative".lower():
+    # if st.session_state.creative_mode:
     # clear chat messages from factual mode
     factual_chat_msgs.clear()
-    # create button for sample questions in factual_options
-    with st.sidebar:
-        st.markdown(":blue[Select a creative prompt]")
-        # with st.container(height=400):
+    # create button for sample questions in creative_options
+#    with st.sidebar:
+#        st.markdown(":blue[Select a creative prompt]")
+#        # with st.container(height=400):
+#
+#        for q in creative_options:
+#            if st.button(q):
+#                st.session_state.question_button = q
 
-        for q in creative_options:
-            if st.button(q):
-                st.session_state.question_button = q
+    st.session_state.question_button = st.selectbox(label="",
+                                                    options=creative_options,
+                                                    placeholder="Creative Prompts",
+                                                    key="selection",
+                                                    index=None,
+                                                    )
 
     # Set up LLM for creative mode
-    llm = HuggingFaceEndpoint(
+    llm_creative = HuggingFaceEndpoint(
         repo_id=llama3p1_70B,
         task="text-generation",
         max_new_tokens=1000,
@@ -255,7 +297,7 @@ if st.session_state.creative_mode:
 
     # ------ set up llm chain -----#
     chat_llm_chain = LLMChain(
-        llm=llm,
+        llm=llm_creative,
         prompt=chatPrompt,
         verbose=True,
         memory=creative_conversational_memory,
@@ -266,32 +308,32 @@ if st.session_state.creative_mode:
         # enable st.chat_input() at the bottom
         # when options from factual_options are selected
         st.session_state.question_button = st.chat_input(
-            "Woof! Cosmo is in creative mode!", key='creative_prompt')
+            "Woof! Cosmo is in creative mode!", key='creative_prompt', on_submit=reset_selectbox)
 
     else:
         prompt = st.chat_input(
             "Woof! Cosmo is in creative mode!", key='creative_prompt')
 
     if prompt:
-        st.markdown(f":blue[{prompt.upper()}]")
+        st.markdown(f":red[{prompt.upper()}]")
 
-        with st.spinner("Grrrr..."):
-            prompt = f"{prompt} <|eot_id|>"
-            # chain llm to the question
-            response = chat_llm_chain.predict(
-                human_input=prompt)
-            # exclude 'assistant' from response
-            response = response[9:]
+        with st.container(border=True, height=200):
 
-            # regex on human to remove Humam
-            human = re.search(r"Human:.*|human:.*", response)
+            with st.spinner("Grrrr..."):
+                prompt = f"{prompt} <|eot_id|>"
+                # chain llm to the question
+                response = chat_llm_chain.predict(
+                    human_input=prompt)
+                # exclude 'assistant' from response
+                response = response[9:]
 
-            def stream_data():
-                for word in response.split(" "):
-                    yield word + " "
-                    time.sleep(0.04)
+                # regex on human to remove Humam
+                human = re.search(r"Human:.*|human:.*", response)
 
-            with st.container(border=True, height=400):
+                def stream_data():
+                    for word in response.split(" "):
+                        yield word + " "
+                        time.sleep(0.04)
 
                 if human is not None:
                     # exclude "Human:" located at end of string
@@ -303,5 +345,8 @@ if st.session_state.creative_mode:
                     st.write_stream(stream_data)
                     st_copy_to_clipboard(response)
 
+                st.session_state.question_button = None
 
-st.sidebar.write(footer_html, unsafe_allow_html=True)
+
+# st.sidebar.write(footer_html, unsafe_allow_html=True)
+
