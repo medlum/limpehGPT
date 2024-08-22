@@ -2,19 +2,14 @@ import streamlit as st
 from langchain.chains.conversation.memory import ConversationBufferMemory
 from langchain.agents import AgentExecutor, create_react_agent
 from langchain_community.chat_message_histories import StreamlitChatMessageHistory
-from utils import *
+from utils_v4 import *
 import time
 from huggingface_hub.utils._errors import HfHubHTTPError
 from huggingface_hub.errors import OverloadedError
 from langchain_huggingface import HuggingFaceEndpoint
-import requests
-from streamlit_lottie import st_lottie
 from st_copy_to_clipboard import st_copy_to_clipboard
-from duckduckgo_search.exceptions import RatelimitException
 from huggingface_hub.inference._common import ValidationError
-from streamlit_option_menu import option_menu
 from langchain.schema import (
-    HumanMessage,
     SystemMessage,
 )
 from langchain_core.prompts import (
@@ -24,35 +19,25 @@ from langchain_core.prompts import (
 )
 from langchain.chains import LLMChain
 import streamlit_antd_components as sac
+
 # ---------set up page config -------------#
 st.set_page_config(page_title="Cosmo-Chat-Dog",
                    layout="wide", page_icon="🐶")
-
-# ---- set up session state for factual and creative button ---- #
-if 'factual_mode' not in st.session_state:
-    st.session_state.factual_mode = False
-
-if 'creative_mode' not in st.session_state:
-    st.session_state.creative_mode = False
+news = CNAheadlines("news")
 
 
-def factual_mode_button():
-    st.session_state.factual_mode = True  # factual memory on
-    st.session_state.creative_mode = False  # creative memory off
+# ------- set up session state for question --------#
+st.session_state.question_button = None
 
+# ---- set up chat history ----#
+news_chat_msgs = StreamlitChatMessageHistory(key="news_key")
+news_chat_history_size = 10
 
-def creative_mode_button():
-    st.session_state.creative_mode = True  # creative memory on
-    st.session_state.factual_mode = False  # factual memory off
+financial_chat_msgs = StreamlitChatMessageHistory(key="financial_key")
+financial_chat_history_size = 10
 
-
-# ---- set up factual chat history ----#
-factual_chat_msgs = StreamlitChatMessageHistory(key="factual_key")
-factual_chat_history_size = 10
-
-if len(factual_chat_msgs.messages) == 0:
-    factual_chat_msgs.clear()
-
+weather_chat_msgs = StreamlitChatMessageHistory(key="weather_key")
+weather_chat_history_size = 10
 
 # ---- set up creative chat history ----#
 creative_chat_msgs = StreamlitChatMessageHistory(key="creative_key")
@@ -61,63 +46,35 @@ creative_chat_history_size = 10
 if len(creative_chat_msgs.messages) == 0:
     creative_chat_msgs.clear()
 
+# ---- App Header: INTELLIGENCE Starts Here ---- #
 
-# ---- App Header: Curiosity Starts Here ---- #
+# st.markdown("<p style='text-align: center; font-size:1.4rem; color:#2ecbf2'>INTELLIGENCE STARTS HERE</p>",
+#            unsafe_allow_html=True)
 
-st.markdown("<p style='text-align: center; font-size:1.4rem; color:#2ecbf2'>INTELLIGENCE STARTS HERE</p>",
-            unsafe_allow_html=True)
 
-# ---- set up lottie icon ---- #
-url = "https://lottie.host/ec0907dc-d6ac-4ecf-b267-e98d2b1c558d/eGhP7jwBj3.json"
-url = requests.get(url)
-
-# url_json = dict()
-# if url.status_code == 200:
-#    url_json = url.json()
-# else:
-#    print("Error in the URL")
-#
-#
-# st_lottie(url_json,
-#          reverse=True,  # change the direction
-#          height=130,  # height and width
-#          width=130,
-#          speed=1,  # speed
-#          loop=True,  # run forever like a gif
-#          quality='high',  # options include "low" and "medium"
-#          key='bot'  # Uniquely identify the animation
-#          )
-
-# ----- Create creative and factual ------#
-st.session_state.mode_btn = None
+sac.alert(label='Breaking News...',
+          description=news,
+          size='xs',
+          radius='xs',
+          icon=True,
+          variant='filled',
+          closable=True,
+          banner=[False, True])
 
 btn = sac.segmented(
     items=[
         sac.SegmentedItem(label='creative'),
-        sac.SegmentedItem(label='factual'),
+        sac.SegmentedItem(label='news'),
+        sac.SegmentedItem(label='weather'),
+        sac.SegmentedItem(label='finance'),
+
     ], align='center', size="xs",
 )
 
-# btn = sac.buttons(items=[
-#    sac.SegmentedItem(icon=sac.BsIcon(
-#        name='lamp', size=20), label="CREATIVE"),
-#    sac.SegmentedItem(icon=sac.BsIcon(
-#        name='geo-fill', size=20), label="FACTUAL"),
-# ], index=None, align='center', gap="md",  variant="text",  color="#2ecbf2", size="xs")
-
-
-# st.session_state.mode_btn = btn
-# col1, col2 = st.columns([1, 1])
-#
-# creative_mode = st.button(
-#    'Be Creative', use_container_width=True, key='creative',  on_click=creative_mode_button)
-#
-# factual_mode = st.button(
-#    'Be Factual', use_container_width=True, key='search', on_click=factual_mode_button)
 
 # --------- llm model and question button ---------#
 llama3p1_70B = "meta-llama/Meta-Llama-3.1-70B-Instruct"
-st.session_state.question_button = None
+
 
 # -------- reset selectbox selection ---------#
 
@@ -129,26 +86,46 @@ def reset_selectbox():
 
 
 # --------- factual button clicked -----------#
-if btn == "Factual".lower():
+
+
+if btn in ["news", "weather", "finance"]:
     # if st.session_state.factual_mode:
 
     # clear chat messages from creative mode
     creative_chat_msgs.clear()
-    st.session_state.question_button = st.selectbox(label="",
-                                                    options=factual_options,
-                                                    placeholder="Factual Prompts",
-                                                    key="selection",
-                                                    index=None,
-                                                    )
 
-#    with st.sidebar:
-#        st.markdown(":blue[Select a factual prompt]")
-#
-#        # create button for sample questions in factual_options
-#        with st.container(height=400):
-#            for q in factual_options:
-#                if st.button(q):
-#                    st.session_state.question_button = q
+    if btn == "news":
+        questions = news_options
+        chat_msg = news_chat_msgs
+        chat_history_size = news_chat_history_size
+        agent_tools = tools_for_news
+        creative_chat_msgs.clear()
+        financial_chat_msgs.clear()
+        weather_chat_msgs.clear()
+
+    elif btn == "finance":
+        questions = financial_options
+        chat_msg = financial_chat_msgs
+        chat_history_size = financial_chat_history_size
+        agent_tools = tools_for_stock
+        creative_chat_msgs.clear()
+        news_chat_msgs.clear()
+        weather_chat_msgs.clear()
+
+    elif btn == "weather":
+        questions = weather_options
+        chat_msg = weather_chat_msgs
+        chat_history_size = weather_chat_history_size
+        agent_tools = tools_for_weather
+        creative_chat_msgs.clear()
+        financial_chat_msgs.clear()
+        news_chat_msgs.clear()
+
+    st.session_state.question_button = st.selectbox(label="",
+                                                    options=questions,
+                                                    placeholder="Try out questions...",
+                                                    key="selection",
+                                                    index=None,)
 
     # Set up LLM for factual mode
     llm_factual = HuggingFaceEndpoint(
@@ -163,18 +140,18 @@ if btn == "Factual".lower():
         huggingfacehub_api_token=st.secrets["huggingfacehub_api_token"]
     )
 
-    factual_conversational_memory = ConversationBufferMemory(
+    conversational_memory = ConversationBufferMemory(
         memory_key='chat_history',
-        chat_memory=factual_chat_msgs,
-        k=factual_chat_history_size,
+        chat_memory=chat_msg,
+        k=chat_history_size,
         return_messages=True)
 
-    react_agent = create_react_agent(llm_factual, tools, PROMPT)
+    react_agent = create_react_agent(llm_factual, agent_tools, PROMPT)
 
     executor = AgentExecutor(
         agent=react_agent,
-        tools=tools,
-        memory=factual_conversational_memory,
+        tools=agent_tools,
+        memory=conversational_memory,
         max_iterations=10,
         handle_parsing_errors=True,
         verbose=True,
@@ -186,16 +163,16 @@ if btn == "Factual".lower():
         # enable st.chat_input() at the bottom
         # when options from factual_options are selected
         st.session_state.question_button = st.chat_input(
-            "Woof! Cosmo is in factual mode!", key='factual_prompt', on_submit=reset_selectbox)
+            f"{btn.upper()} MODE", key='factual_prompt', on_submit=reset_selectbox)
 
     else:
         prompt = st.chat_input(
-            "Woof! Cosmo is in factual mode!", key='factual_prompt')
+            f"{btn.upper()} MODE", key='factual_prompt')
 
     if prompt:
-        st.markdown(f":red[{prompt.upper()}]")
 
         with st.container(border=True, height=200):
+            st.markdown(f":red[{prompt.upper()}]")
             try:
 
                 with st.spinner("Grrrr..."):
@@ -218,9 +195,6 @@ if btn == "Factual".lower():
             except OverloadedError as error:
                 st.write(model_error_message)
 
-            except RatelimitException as error:
-                st.write(
-                    "Woof! I've reached rate limit for using DuckDuckGo to perform online search. Come back later...")
             except ValidationError as error:
                 st.write(
                     "Woof! I can't handle too much information, try again by reducing your request.")
@@ -228,21 +202,13 @@ if btn == "Factual".lower():
 
 # ----- creative button is clicked ------#
 if btn == "Creative".lower():
-    # if st.session_state.creative_mode:
-    # clear chat messages from factual mode
-    factual_chat_msgs.clear()
-    # create button for sample questions in creative_options
-#    with st.sidebar:
-#        st.markdown(":blue[Select a creative prompt]")
-#        # with st.container(height=400):
-#
-#        for q in creative_options:
-#            if st.button(q):
-#                st.session_state.question_button = q
+    news_chat_msgs.clear()
+    financial_chat_msgs.clear()
+    weather_chat_msgs.clear()
 
     st.session_state.question_button = st.selectbox(label="",
                                                     options=creative_options,
-                                                    placeholder="Creative Prompts",
+                                                    placeholder="Try out questions...",
                                                     key="selection",
                                                     index=None,
                                                     )
@@ -308,16 +274,16 @@ if btn == "Creative".lower():
         # enable st.chat_input() at the bottom
         # when options from factual_options are selected
         st.session_state.question_button = st.chat_input(
-            "Woof! Cosmo is in creative mode!", key='creative_prompt', on_submit=reset_selectbox)
+            f"{btn.upper()} MODE", key='creative_prompt', on_submit=reset_selectbox)
 
     else:
         prompt = st.chat_input(
-            "Woof! Cosmo is in creative mode!", key='creative_prompt')
+            f"{btn.upper()} MODE", key='creative_prompt')
 
     if prompt:
-        st.markdown(f":red[{prompt.upper()}]")
 
         with st.container(border=True, height=200):
+            st.markdown(f":red[{prompt.upper()}]")
 
             with st.spinner("Grrrr..."):
                 prompt = f"{prompt} <|eot_id|>"
@@ -349,4 +315,3 @@ if btn == "Creative".lower():
 
 
 # st.sidebar.write(footer_html, unsafe_allow_html=True)
-
