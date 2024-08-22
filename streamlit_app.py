@@ -315,5 +315,10 @@ if btn == "Creative".lower():
 
 
 st.sidebar.write(footer_html, unsafe_allow_html=True)
-hide_streamlit_style = """ <style> #MainMenu {visibility: hidden;} footer {visibility: hidden;} </style> """ 
-st.markdown(hide_streamlit_style,unsafe_allow_html=True)
+hide_streamlit_style = """
+            <style>
+            [data-testid="stToolbar"] {visibility: hidden !important;}
+            footer {visibility: hidden !important;}
+            </style>
+            """
+st.markdown(hide_streamlit_style, unsafe_allow_html=True)
