@@ -170,7 +170,7 @@ if btn in ["news", "weather", "finance"]:
         prompt = st.chat_input(
             f"Ask a question in {btn} mode", key='factual_prompt')
 
-    with st.container(border=True, height=210):
+    with st.container(border=True, height=160):
         if prompt:
 
             st.markdown(f":red[{prompt.upper()}]")
@@ -280,7 +280,7 @@ if btn == "Creative".lower():
         prompt = st.chat_input(
             f"Ask a question in {btn} mode", key='creative_prompt')
 
-    with st.container(border=True, height=210):
+    with st.container(border=True, height=160):
 
         if prompt:
             st.markdown(f":red[{prompt.upper()}]")
