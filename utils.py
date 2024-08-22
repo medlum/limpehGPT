@@ -15,37 +15,15 @@ from langchain_community.tools import BraveSearch
 import pandas as pd
 
 
-# -- sidebar ---#
-
-
-url = "https://huggingface.co/docs/hub/en/security-tokens"
-text = """Cosmo is an all-round AI chatdog built with LangChain and Streamlit,
-powered by Meta-Llama-3-70B-Instruct language model and HuggingFace🤗 inference endpoint.\n
-
-Some of its woofwoof capabilities:\n
-- Document-Question-Answering\n
-- Sinagpore News Headlines\n
-- US Stock Price Quotes\n
-- Singapore Weather Forecast\n
-- Summarize & Generate Texts\n
-- Coding Assistance\n
-"""
-
-creative_factual_intro = """
-Cosmo the chatdog can be creative or factual.\n
-:blue[Be Creative] is excellent for crafting opening speech, marketing slogan etc.\n
-:blue[Be Factual] is useful for updated news, events, weather or latest information in general.\n
-Choose one to get started.
-"""
-# prompt template for factual mode
+# prompt template #
 template = """
 You are Cosmo the chatdog who provides informative answers to users.
 
-Answer each headline in a newline with a number.
+Select 10 headlines and answer each headline in a newline with a number.
 
-Answer stock prices and financial metrics with only 2 decimal places.
+Write the final answer of stock prices and financial metrics in 2 decimal places.
 
-Put the final answer of financial metrics in a table.
+Write the final answer of financial metrics in a table.
 
 For weather forecast of more than one day, group your final answer into a table.
 
@@ -87,22 +65,14 @@ PROMPT = PromptTemplate(input_variables=[
 
 
 # sample questions
-options = ("What are the latest headlines?",
-           "Nvidia's closing price for the last 5 trading days.",
-           "Draw a line chart for Nvidia's stock price.",
-           "Key financial metrics of Microsoft and Nvidia in a table.",
-           "How is the weather today?",
-           "Weather forecast in the next few days.",
-           "Will it rain in the west of Singapore tomorrow?",
-           "Who is the Prime Minister of Singapore?",
-           )
+news_options = ("Latest headlines",
+                "")
 
-# sample questions
-factual_options = ("What are the latest headlines?",
-                   "Nvidia's last closing prices",
-                   "Draw a line chart of Nvidia stock price",
-                   "Find the key financial metrics of Nvidia",
-                   "How's the weather today?",
+financial_options = ("Nvidia's last closing prices",
+                     "Draw a line chart of Nvidia stock price",
+                     "Find the key financial metrics of Nvidia",)
+
+weather_options = ("How's the weather today?",
                    "Weather forecast for the next few days"
                    )
 
@@ -117,9 +87,9 @@ creative_options = ("Tell me a joke about dogs",
                     "Can curiosity kill a cat?"
                     )
 
+# ---- online search with brave search ---#
 braveSearch = BraveSearch.from_api_key(
     api_key=st.secrets['brave_api'], search_kwargs={"count": 3})
-
 
 braveSearch_tool = Tool(
     func=braveSearch,
@@ -127,6 +97,7 @@ braveSearch_tool = Tool(
     description="use this function to answer questions about most current events."
 )
 
+# ---- wikipedia search ---#
 
 wikipedia = WikipediaAPIWrapper()
 
@@ -135,6 +106,10 @@ wikipedia_tool = Tool(
     func=wikipedia.run,
     description="Useful when you need to look up for comprehensive information on all branches of knowledge"
 )
+
+# ---- weather forecast ---#
+
+# nea api - 4 days forecast
 
 
 def weather4days(url):
@@ -149,6 +124,8 @@ weather4days_tool = StructuredTool.from_function(
     name='nea_api_4days',
     description="Use this tool to find out the weather forecast for next 4 days in singapore"
 )
+
+# nea api - 24 hours forecast
 
 
 def weather24hr(url):
@@ -165,6 +142,9 @@ weather24hr_tool = StructuredTool.from_function(
 )
 
 
+# ---- news headlines ---#
+
+# webscrape on CNA headlines
 def CNAheadlines(genre: str):
 
     url = "https://www.channelnewsasia.com"
@@ -175,9 +155,11 @@ def CNAheadlines(genre: str):
         headlines = soup.find('body').find_all('h6')  # headlines at h6
         for x in headlines:
             news.append(x.text.strip())
-        return '.'.join(news)
+        return '. '.join(news)
     else:
         return "No response from news provider."
+
+# webscrape on CNA headlines
 
 
 news_tool = StructuredTool.from_function(
@@ -186,14 +168,11 @@ news_tool = StructuredTool.from_function(
     description="use this function to provide news headlines."
 )
 
-search = DuckDuckGoSearchRun()
-search_tool = Tool(
-    name="DuckDuckGo",
-    func=search.run,
-    description="use this function to answer questions about most current events including places, news and person",
-)
 
+# ---- stock and financial data ---#
 pattern = r'[A-Z]+\d+[A-Z]*\.SI|[A-Z]+\b'
+
+# yahoo finance api for single stock
 
 
 def stockPrice(ticker: str) -> str:
@@ -210,6 +189,9 @@ stockPrice_tool = StructuredTool.from_function(
     name='yfinance',
     description="use this function to find stock prices of a public listed company.",
 )
+
+# draw line chart of single stock price
+
 
 def stockLineChart(ticker: str):
     """
@@ -235,6 +217,8 @@ stockLineChart_tool = StructuredTool.from_function(
     description="use this function to find stock price and draw line chart or trendline"
 )
 
+# yahoo finance - financial metrics
+
 
 def financialIndicators(ticker: str):
     """
@@ -258,6 +242,8 @@ financialIndicator_tool = StructuredTool.from_function(
     description="use this function to download company's financial metrics like PE ratio, EPS etc"
 )
 
+# -------- today's date --------#
+
 
 def time(text: str) -> str:
     return str(date.today())
@@ -270,18 +256,13 @@ time_tool = StructuredTool.from_function(
 )
 
 
-# remove linechart_tool
-tools = [news_tool,
-         stockPrice_tool,
-         financialIndicator_tool,
-         stockLineChart_tool,
-         weather24hr_tool,
-         weather4days_tool,
-         time_tool,
-         wikipedia_tool,
-         braveSearch_tool
-         ]
+tools_for_weather = [weather24hr_tool, weather4days_tool]
 
+tools_for_stock = [stockPrice_tool,
+                   financialIndicator_tool,
+                   stockLineChart_tool]
+
+tools_for_news = [news_tool, braveSearch_tool]
 
 endpoint_error_message = "Woof! HuggingFace endpoint has too many requests now. Please try again later."
 model_error_message = "Woof! The AI model is overloaded at the endpoint. Please try again later."
@@ -291,7 +272,3 @@ footer_html = """<div style='text-align: center;'>
 <p style="font-size:70%;">Developed with 💗 by Andy Oh</p>
 <p style="font-size:70%;">Ngee Ann Polytechnic</p>
 </div>"""
-
-
-# search tool:
-# https://api.search.brave.com/app/subscriptions/active
