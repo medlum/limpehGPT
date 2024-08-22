@@ -2,7 +2,7 @@ import streamlit as st
 from langchain.chains.conversation.memory import ConversationBufferMemory
 from langchain.agents import AgentExecutor, create_react_agent
 from langchain_community.chat_message_histories import StreamlitChatMessageHistory
-from utils import *
+from utils_v4 import *
 import time
 from huggingface_hub.utils._errors import HfHubHTTPError
 from huggingface_hub.errors import OverloadedError
@@ -51,12 +51,11 @@ if len(creative_chat_msgs.messages) == 0:
 # st.markdown("<p style='text-align: center; font-size:1.4rem; color:#2ecbf2'>INTELLIGENCE STARTS HERE</p>",
 #            unsafe_allow_html=True)
 
-
-sac.alert(label='Breaking News...',
+sac.alert(label='Breaking news...',
           description=news,
           size='xs',
-          radius='xs',
-          icon=True,
+          radius='8px',
+          # icon=True,
           variant='filled',
           closable=True,
           banner=[False, True])
@@ -121,11 +120,13 @@ if btn in ["news", "weather", "finance"]:
         financial_chat_msgs.clear()
         news_chat_msgs.clear()
 
-    st.session_state.question_button = st.selectbox(label="",
-                                                    options=questions,
-                                                    placeholder="Try out questions...",
-                                                    key="selection",
-                                                    index=None,)
+    with st.sidebar:
+        st.session_state.question_button = st.selectbox(label="",
+                                                        options=creative_options,
+                                                        placeholder=f"Try a question related to {btn}...",
+                                                        key="selection",
+                                                        index=None,
+                                                        )
 
     # Set up LLM for factual mode
     llm_factual = HuggingFaceEndpoint(
@@ -163,15 +164,15 @@ if btn in ["news", "weather", "finance"]:
         # enable st.chat_input() at the bottom
         # when options from factual_options are selected
         st.session_state.question_button = st.chat_input(
-            f"{btn.upper()} MODE", key='factual_prompt', on_submit=reset_selectbox)
+            f"Ask a question in {btn} mode", key='factual_prompt', on_submit=reset_selectbox)
 
     else:
         prompt = st.chat_input(
-            f"{btn.upper()} MODE", key='factual_prompt')
+            f"Ask a question in {btn} mode", key='factual_prompt')
 
-    if prompt:
+    with st.container(border=True, height=310):
+        if prompt:
 
-        with st.container(border=True, height=200):
             st.markdown(f":red[{prompt.upper()}]")
             try:
 
@@ -205,13 +206,6 @@ if btn == "Creative".lower():
     news_chat_msgs.clear()
     financial_chat_msgs.clear()
     weather_chat_msgs.clear()
-
-    st.session_state.question_button = st.selectbox(label="",
-                                                    options=creative_options,
-                                                    placeholder="Try out questions...",
-                                                    key="selection",
-                                                    index=None,
-                                                    )
 
     # Set up LLM for creative mode
     llm_creative = HuggingFaceEndpoint(
@@ -268,21 +262,27 @@ if btn == "Creative".lower():
         verbose=True,
         memory=creative_conversational_memory,
     )
-
+    with st.sidebar:
+        st.session_state.question_button = st.selectbox(label="",
+                                                        options=creative_options,
+                                                        placeholder="Try a creative question...",
+                                                        key="selection",
+                                                        index=None,
+                                                        )
+    # wait for selectbox option
     if st.session_state.question_button:
         prompt = st.session_state.question_button
-        # enable st.chat_input() at the bottom
-        # when options from factual_options are selected
+        # enable st.chat_input() when selectbox option are selected
         st.session_state.question_button = st.chat_input(
-            f"{btn.upper()} MODE", key='creative_prompt', on_submit=reset_selectbox)
-
+            f"Ask a question in {btn} mode", key='creative_prompt', on_submit=reset_selectbox)
+    # else wait for chat_input
     else:
         prompt = st.chat_input(
-            f"{btn.upper()} MODE", key='creative_prompt')
+            f"Ask a question in {btn} mode", key='creative_prompt')
 
-    if prompt:
+    with st.container(border=True, height=310):
 
-        with st.container(border=True, height=200):
+        if prompt:
             st.markdown(f":red[{prompt.upper()}]")
 
             with st.spinner("Grrrr..."):
@@ -314,4 +314,5 @@ if btn == "Creative".lower():
                 st.session_state.question_button = None
 
 
-# st.sidebar.write(footer_html, unsafe_allow_html=True)
+st.sidebar.write(footer_html, unsafe_allow_html=True)
+
