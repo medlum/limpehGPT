@@ -122,7 +122,7 @@ if btn in ["news", "weather", "finance"]:
 
     with st.sidebar:
         st.session_state.question_button = st.selectbox(label="",
-                                                        options=creative_options,
+                                                        options=questions,
                                                         placeholder=f"Try a question related to {btn}...",
                                                         key="selection",
                                                         index=None,
@@ -170,7 +170,7 @@ if btn in ["news", "weather", "finance"]:
         prompt = st.chat_input(
             f"Ask a question in {btn} mode", key='factual_prompt')
 
-    with st.container(border=True, height=290):
+    with st.container(border=True, height=250):
         if prompt:
 
             st.markdown(f":red[{prompt.upper()}]")
@@ -280,7 +280,7 @@ if btn == "Creative".lower():
         prompt = st.chat_input(
             f"Ask a question in {btn} mode", key='creative_prompt')
 
-    with st.container(border=True, height=290):
+    with st.container(border=True, height=250):
 
         if prompt:
             st.markdown(f":red[{prompt.upper()}]")
