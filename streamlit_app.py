@@ -2,7 +2,7 @@ import streamlit as st
 from langchain.chains.conversation.memory import ConversationBufferMemory
 from langchain.agents import AgentExecutor, create_react_agent
 from langchain_community.chat_message_histories import StreamlitChatMessageHistory
-from utils import *
+from utils_v4 import *
 import time
 from huggingface_hub.utils._errors import HfHubHTTPError
 from huggingface_hub.errors import OverloadedError
@@ -131,7 +131,7 @@ if btn in ["news", "weather", "finance"]:
     # Set up LLM for factual mode
     llm_factual = HuggingFaceEndpoint(
         repo_id=llama3p1_70B,
-        max_new_tokens=700,
+        max_new_tokens=1000,
         do_sample=False,
         temperature=0.01,
         repetition_penalty=1.1,
@@ -170,7 +170,7 @@ if btn in ["news", "weather", "finance"]:
         prompt = st.chat_input(
             f"Ask a question in {btn} mode", key='factual_prompt')
 
-    with st.container(border=True, height=160):
+    with st.container(border=True, height=250):
         if prompt:
 
             st.markdown(f":red[{prompt.upper()}]")
@@ -185,7 +185,7 @@ if btn in ["news", "weather", "finance"]:
                     def stream_data():
                         for word in response.split(" "):
                             yield word + " "
-                            time.sleep(0.04)
+                            time.sleep(0.02)
 
                     st.write_stream(stream_data)
                     st_copy_to_clipboard(response)
@@ -280,7 +280,7 @@ if btn == "Creative".lower():
         prompt = st.chat_input(
             f"Ask a question in {btn} mode", key='creative_prompt')
 
-    with st.container(border=True, height=160):
+    with st.container(border=True, height=250):
 
         if prompt:
             st.markdown(f":red[{prompt.upper()}]")
@@ -299,7 +299,7 @@ if btn == "Creative".lower():
                 def stream_data():
                     for word in response.split(" "):
                         yield word + " "
-                        time.sleep(0.04)
+                        time.sleep(0.02)
 
                 if human is not None:
                     # exclude "Human:" located at end of string
@@ -313,8 +313,6 @@ if btn == "Creative".lower():
 
                 st.session_state.question_button = None
 
-
-st.sidebar.write(footer_html, unsafe_allow_html=True)
 hide_streamlit_style = """
             <style>
             [data-testid="stToolbar"] {visibility: hidden !important;}
@@ -322,3 +320,7 @@ hide_streamlit_style = """
             </style>
             """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
+st.sidebar.write(footer_html, unsafe_allow_html=True)
+
+
+
