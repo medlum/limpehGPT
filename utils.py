@@ -12,7 +12,6 @@ import json
 from datetime import date
 from langchain_community.utilities import WikipediaAPIWrapper
 from langchain_community.tools import BraveSearch
-import pandas as pd
 
 
 # prompt template #
@@ -23,9 +22,11 @@ Select 10 headlines and answer each headline in a newline with a number.
 
 Write the final answer of stock prices and financial metrics in 2 decimal places.
 
-Write the final answer of financial metrics in a table.
+Answer each stock prices and financial metrics in a newline with a number.
 
 For weather forecast of more than one day, group your final answer into a table.
+
+Answer each trending stories with the headline, description, story link and number each story.
 
 Always cite the url where you find the answers on a newline at the end.
 
@@ -65,10 +66,11 @@ PROMPT = PromptTemplate(input_variables=[
 
 
 # sample questions
-news_options = ("Latest headlines",
+news_options = ("Trending stories now",
+                "Latest news headlines"
                 "")
 
-financial_options = ("Nvidia's last closing prices",
+financial_options = ("Nvidia's last closing price",
                      "Draw a line chart of Nvidia stock price",
                      "Find the key financial metrics of Nvidia",)
 
@@ -169,19 +171,54 @@ news_tool = StructuredTool.from_function(
 )
 
 
+def trending_today(story: str):
+    url = "https://www.today.com/trending"
+    response = requests.get(url)
+    if response.status_code == 200:
+        soup = BeautifulSoup(response.text, 'html.parser')
+        container = soup.find('div', class_="styles_itemsContainer__saJYW")
+
+        for i in container:
+            headlines = soup.find_all('h2', class_='wide-tease-item__headline')
+            descriptions = soup.find_all(
+                'div', class_='wide-tease-item__description')
+            links = soup.find_all(
+                'div', class_="wide-tease-item__image-wrapper flex-none relative dt dn-m")
+
+        trend_headlines = [headline.text.strip() for headline in headlines]
+        trend_descriptions = [description.text.strip()
+                              for description in descriptions]
+        trend_urls = [link.find('a').get('href') for link in links]
+
+        trending_story = {}
+        for i in range(len(trend_headlines)):
+            if trend_headlines[i] not in trending_story:
+                trending_story[trend_headlines[i]
+                               ] = f"{trend_descriptions[i]} {trend_urls[i]}"
+
+        return trending_story
+
+
+trending_stories_tool = StructuredTool.from_function(
+    func=trending_today,
+    name="Trending_Today_USA",
+    description="use this function to provide trending stories."
+)
+
 # ---- stock and financial data ---#
-pattern = r'[A-Z]+\d+[A-Z]*\.SI|[A-Z]+\b'
+
 
 # yahoo finance api for single stock
 
 
 def stockPrice(ticker: str) -> str:
+    pattern = r'[A-Z]+\d+[A-Z]*\.SI|[A-Z]+\b'
     """return stock price """
     matches = re.findall(pattern, ticker)
     ticker = ''.join(matches)
     tick = yf.Ticker(ticker)
     price = tick.history()
-    return price.to_dict()
+    return price.to_string()
 
 
 stockPrice_tool = StructuredTool.from_function(
@@ -197,6 +234,7 @@ def stockLineChart(ticker: str):
     """
     Download stock price to draw line chart.
     """
+    pattern = r'[A-Z]+\d+[A-Z]*\.SI|[A-Z]+\b'
     matches = re.findall(pattern, ticker)
     ticker = ''.join(matches)
     tick = yf.Ticker(ticker)
@@ -224,6 +262,7 @@ def financialIndicators(ticker: str):
     """
     Download company's financial information like EPS, EBITA, Book Value.
     """
+    pattern = r'[A-Z]+\d+[A-Z]*\.SI|[A-Z]+\b'
     matches = re.findall(pattern, ticker)
     ticker = ''.join(matches)
     symbol = yf.Ticker(ticker)
@@ -260,9 +299,9 @@ tools_for_weather = [weather24hr_tool, weather4days_tool]
 
 tools_for_stock = [stockPrice_tool,
                    financialIndicator_tool,
-                   stockLineChart_tool]
+                   stockLineChart_tool, time_tool]
 
-tools_for_news = [news_tool, braveSearch_tool]
+tools_for_news = [news_tool, trending_stories_tool, braveSearch_tool]
 
 endpoint_error_message = "Woof! HuggingFace endpoint has too many requests now. Please try again later."
 model_error_message = "Woof! The AI model is overloaded at the endpoint. Please try again later."
@@ -272,3 +311,4 @@ footer_html = """<div style='text-align: center;'>
 <p style="font-size:70%;">Developed with 💗 by Andy Oh</p>
 <p style="font-size:70%;">Ngee Ann Polytechnic</p>
 </div>"""
+
