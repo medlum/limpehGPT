@@ -12,7 +12,7 @@ import json
 from datetime import date
 from langchain_community.utilities import WikipediaAPIWrapper
 from langchain_community.tools import BraveSearch
-
+from io import BytesIO
 
 # prompt template #
 template = """
@@ -26,7 +26,9 @@ Answer each stock prices and financial metrics in a newline with a number.
 
 For weather forecast of more than one day, group your final answer into a table.
 
-Answer each trending stories with the headline, description, story link and number each story.
+Answer each trending story in the order of an image, headline, description, story link and number each story.
+
+Answer each local news with a headline, url on newlines and number each news.
 
 Always cite the url where you find the answers on a newline at the end.
 
@@ -45,9 +47,9 @@ Action Input: the input to the action
 Observation: the result of the action
 ... (this Thought/Action/Action Input/Observation can repeat N times)
 Thought: I now know the final answer
-Final Answer: the final answer to the original input question
+Final Answer: the final answer to the original input question <|eot_id|>
 
-Begin! Remember to give detailed, informative answers
+Begin! Remember to give detailed and informative answers
 Previous conversation history:
 {chat_history}
 
@@ -66,8 +68,9 @@ PROMPT = PromptTemplate(input_variables=[
 
 
 # sample questions
-news_options = ("Trending stories now",
-                "Latest news headlines"
+news_options = ("Local news from mustsharenews.com",
+                "Trending stories USA",
+                "Latest news headlines from CNA"
                 "")
 
 financial_options = ("Nvidia's last closing price",
@@ -172,11 +175,23 @@ news_tool = StructuredTool.from_function(
 
 
 def trending_today(story: str):
+
     url = "https://www.today.com/trending"
     response = requests.get(url)
+
     if response.status_code == 200:
         soup = BeautifulSoup(response.text, 'html.parser')
         container = soup.find('div', class_="styles_itemsContainer__saJYW")
+
+        # search for images with img tag and loading:'lazy'
+        # this is a 200px x 200px image
+        img = container.find_all("img", loading="lazy")
+        img_urls = []
+        for index, element in enumerate(img):
+            if index % 2 == 0:
+                continue
+            # url in 'src' tag
+            img_urls.append(element['src'])
 
         for i in container:
             headlines = soup.find_all('h2', class_='wide-tease-item__headline')
@@ -191,10 +206,16 @@ def trending_today(story: str):
         trend_urls = [link.find('a').get('href') for link in links]
 
         trending_story = {}
+
         for i in range(len(trend_headlines)):
-            if trend_headlines[i] not in trending_story:
-                trending_story[trend_headlines[i]
-                               ] = f"{trend_descriptions[i]} {trend_urls[i]}"
+            trending_story[f"headline of story {i+1}"] = trend_headlines[i]+'.'
+            trending_story[f"description of story {i+1}"] = trend_descriptions[i]
+            trending_story[f"url of story {i+1}"] = trend_urls[i]
+            trending_story[f"image of story {i+1}"] = f'<img src={img_urls[i]} width="100" height="100">'
+
+            # if trend_headlines[i] not in trending_story:
+            #    trending_story[trend_headlines[i]
+            #                   ] = f"{trend_descriptions[i]} {trend_urls[i]}"
 
         return trending_story
 
@@ -203,6 +224,89 @@ trending_stories_tool = StructuredTool.from_function(
     func=trending_today,
     name="Trending_Today_USA",
     description="use this function to provide trending stories."
+)
+
+
+def mustsharenews(story: str):
+    news = []
+    url = "https://mustsharenews.com/"
+    response = requests.get(url)
+
+    if response.status_code == 200:
+        soup = BeautifulSoup(response.text, 'html.parser')
+        # single feature news
+        h2_feature = soup.find('h2', class_="title-cat-main")
+        # latest news
+        h2_result = soup.find_all('h2', class_="title-cat-white")
+        # extract text and href from feature news
+        feature_headline = h2_feature.get_text().strip()
+        feature_href = h2_feature.find('a').get('href')
+        # extract text and href from remaining news
+        for h2 in h2_result:
+            headlines = h2.get_text().strip()
+            href = h2.find('a').get('href')
+            news.append((headlines, href))
+
+        news.insert(0, (feature_headline, feature_href))
+
+    return news
+
+
+mustsharenews_tool = StructuredTool.from_function(
+    func=mustsharenews,
+    name="MustShareNews",
+    description="use this function to provide local news in singapore from mustsharenews.com."
+)
+
+# --------- image tools ------------#
+
+# search image with bravesearch
+
+brave_api_key = "BSANRhMz7xnB_dIA1nzDwO2uaw3cpVA"
+
+
+def query_bravesearch_image(query: str):
+    url = "https://api.search.brave.com/res/v1/images/search"
+    headers = {
+        "X-Subscription-Token": brave_api_key
+    }
+    params = {
+        "q": query,
+        "count": 1,
+    }
+
+    response = requests.get(url, headers=headers, params=params)
+
+    result = response.json()
+
+    url_html = {}
+
+    for img in result['results']:
+        if img['title'] not in url_html:
+            url_html[img['title']] = f"<img src={img['thumbnail']['src']}'>"
+        # url_html.append(f"<img src={img['thumbnail']['src']} alt=f'{img['title']}'>")
+
+    return url_html
+
+
+img_search_tool = StructuredTool.from_function(
+    func=query_bravesearch_image,
+    name="image_bravesearch",
+    description="use this function to search for image url and put the url into html."
+)
+
+# view image
+
+
+def get_img(url: str):
+    r = requests.get(url)
+    return st.image(BytesIO(r.content), width=100)
+
+
+img_view_tool = StructuredTool.from_function(
+    func=get_img,
+    name="image_tool",
+    description="use this function to display an image from a url."
 )
 
 # ---- stock and financial data ---#
@@ -295,13 +399,19 @@ time_tool = StructuredTool.from_function(
 )
 
 
-tools_for_weather = [weather24hr_tool, weather4days_tool]
+tools_for_weather = [weather24hr_tool, weather4days_tool,braveSearch_tool,]
 
 tools_for_stock = [stockPrice_tool,
                    financialIndicator_tool,
-                   stockLineChart_tool, time_tool]
+                   stockLineChart_tool, time_tool,braveSearch_tool,]
 
-tools_for_news = [news_tool, trending_stories_tool, braveSearch_tool]
+tools_for_news = [
+    news_tool,
+    trending_stories_tool,
+    img_search_tool,
+    mustsharenews_tool,
+    braveSearch_tool,
+]
 
 endpoint_error_message = "Woof! HuggingFace endpoint has too many requests now. Please try again later."
 model_error_message = "Woof! The AI model is overloaded at the endpoint. Please try again later."
@@ -311,4 +421,3 @@ footer_html = """<div style='text-align: center;'>
 <p style="font-size:70%;">Developed with 💗 by Andy Oh</p>
 <p style="font-size:70%;">Ngee Ann Polytechnic</p>
 </div>"""
-
