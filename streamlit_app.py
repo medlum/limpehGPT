@@ -31,17 +31,17 @@ st.session_state.question_button = None
 
 # ---- set up chat history ----#
 news_chat_msgs = StreamlitChatMessageHistory(key="news_key")
-news_chat_history_size = 10
+news_chat_history_size = 3
 
 financial_chat_msgs = StreamlitChatMessageHistory(key="financial_key")
-financial_chat_history_size = 10
+financial_chat_history_size = 3
 
 weather_chat_msgs = StreamlitChatMessageHistory(key="weather_key")
-weather_chat_history_size = 10
+weather_chat_history_size = 3
 
 # ---- set up creative chat history ----#
 creative_chat_msgs = StreamlitChatMessageHistory(key="creative_key")
-creative_chat_history_size = 10
+creative_chat_history_size = 5
 
 if len(creative_chat_msgs.messages) == 0:
     creative_chat_msgs.clear()
@@ -170,19 +170,18 @@ if btn in ["news", "weather", "finance"]:
         prompt = st.chat_input(
             f"Ask a question in {btn} mode", key='factual_prompt')
 
-    with st.container(border=True, height=210):
+    with st.container(border=True, height=200):
         if prompt:
-
             st.markdown(f":red[{prompt.upper()}]")
             try:
-
                 with st.spinner("Grrrr..."):
                     response = executor.invoke(
                         {'input': f'{prompt}<|eot_id|>'})
                     response = str(
                         response['output'].replace('<|eot_id|>', ''))
-
                     st.markdown(response, unsafe_allow_html=True)
+
+                    print(response)
 
 
 #                    def stream_data():
@@ -191,6 +190,7 @@ if btn in ["news", "weather", "finance"]:
 #                            time.sleep(0.02)
 #
 #                    st.write_stream(stream_data)
+
                     st_copy_to_clipboard(response)
 
             except HfHubHTTPError as error:
@@ -283,7 +283,7 @@ if btn == "Creative".lower():
         prompt = st.chat_input(
             f"Ask a question in {btn} mode", key='creative_prompt')
 
-    with st.container(border=True, height=210):
+    with st.container(border=True, height=200):
 
         if prompt:
             st.markdown(f":red[{prompt.upper()}]")
@@ -324,3 +324,4 @@ hide_streamlit_style = """
             """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 st.sidebar.write(footer_html, unsafe_allow_html=True)
+
