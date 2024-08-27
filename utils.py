@@ -15,6 +15,7 @@ from langchain_community.tools import BraveSearch
 from io import BytesIO
 
 # prompt template #
+# Answer each trending story in the order of an image, a headline, a description, a story link, include a '\n' at the end of each one and number each story.
 template = """
 You are Cosmo the chatdog who provides informative answers to users.
 
@@ -26,7 +27,14 @@ Answer each stock prices and financial metrics in a newline with a number.
 
 For weather forecast of more than one day, group your final answer into a table.
 
-Answer each trending story in the order of an image, headline, description, story link and number each story.
+For each trending story, answer it in the item order of 
+- image
+- headline
+- description
+- story link
+add a \n to end of text for each item and number each trending story.
+
+Answer each business news with a headline, url on newlines and number each news.
 
 Answer each local news with a headline, url on newlines and number each news.
 
@@ -75,7 +83,8 @@ news_options = ("Local news from mustsharenews.com",
 
 financial_options = ("Nvidia's last closing price",
                      "Draw a line chart of Nvidia stock price",
-                     "Find the key financial metrics of Nvidia",)
+                     "Find the key financial metrics of Nvidia",
+                     "Latest business news",)
 
 weather_options = ("How's the weather today?",
                    "Weather forecast for the next few days"
@@ -174,6 +183,37 @@ news_tool = StructuredTool.from_function(
 )
 
 
+def businessnews(story: str):
+
+    url_placeholder = "https://www.channelnewsasia.com"
+    url = "https://www.channelnewsasia.com/business"
+    news = []
+
+    response = requests.get(url)
+    soup = BeautifulSoup(response.text, 'html.parser')
+    # h3 tag in CNA --> single feature news
+    h3_result = soup.find('h3', class_="h3 list-object__heading")
+    h3_text = h3_result.find('a').get_text().strip()
+    h3_href = h3_result.find('a').get('href')
+    h3_url = f"{url_placeholder}{h3_href}"
+    # h5 tags in CNA --> multiple news
+    h5_result = soup.find_all('h5', class_="h5 list-object__heading")
+    for element in h5_result:
+        news.append((element.find('a').get_text().strip(),
+                    f"{url_placeholder}{element.find('a').get('href')}"))
+
+    news.insert(0, (h3_text, h3_url))
+
+    return news
+
+
+businessnews_tool = StructuredTool.from_function(
+    func=businessnews,
+    name="business_headlines",
+    description="use this function to provide business news headlines."
+)
+
+
 def trending_today(story: str):
 
     url = "https://www.today.com/trending"
@@ -208,10 +248,10 @@ def trending_today(story: str):
         trending_story = {}
 
         for i in range(len(trend_headlines)):
-            trending_story[f"headline of story {i+1}"] = trend_headlines[i]+'.'
+            trending_story[f"headline of story {i+1}"] = f'{trend_headlines[i]}.'
             trending_story[f"description of story {i+1}"] = trend_descriptions[i]
             trending_story[f"url of story {i+1}"] = trend_urls[i]
-            trending_story[f"image of story {i+1}"] = f'<img src={img_urls[i]} width="100" height="100">'
+            trending_story[f"image of story {i+1}"] = f'<img src={img_urls[i]} width="100" height="100">\n'
 
             # if trend_headlines[i] not in trending_story:
             #    trending_story[trend_headlines[i]
@@ -222,7 +262,7 @@ def trending_today(story: str):
 
 trending_stories_tool = StructuredTool.from_function(
     func=trending_today,
-    name="Trending_Today_USA",
+    name="trending_today_usa",
     description="use this function to provide trending stories."
 )
 
@@ -399,11 +439,14 @@ time_tool = StructuredTool.from_function(
 )
 
 
-tools_for_weather = [weather24hr_tool, weather4days_tool,braveSearch_tool,]
+tools_for_weather = [weather24hr_tool, weather4days_tool, braveSearch_tool]
 
 tools_for_stock = [stockPrice_tool,
                    financialIndicator_tool,
-                   stockLineChart_tool, time_tool,braveSearch_tool,]
+                   stockLineChart_tool,
+                   time_tool,
+                   # braveSearch_tool,
+                   businessnews_tool,]
 
 tools_for_news = [
     news_tool,
