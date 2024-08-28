@@ -1,3 +1,4 @@
+import pandas as pd
 from langchain_community.tools import DuckDuckGoSearchRun
 from langchain.agents import Tool
 import requests
@@ -40,6 +41,8 @@ Answer each local news with a headline, url on newlines and number each news.
 
 Always cite the url where you find the answers on a newline at the end.
 
+Answer each schedule and appointment in a table.
+
 Answer the following questions as best you can.
 
 You have access to the following tools:
@@ -74,32 +77,6 @@ agent_kwargs = {
 PROMPT = PromptTemplate(input_variables=[
     "chat_history", "input", "agent_scratchpad"], template=template)
 
-
-# sample questions
-news_options = ("Local news from mustsharenews.com",
-                "Trending stories USA",
-                "Latest news headlines from CNA"
-                "")
-
-financial_options = ("Nvidia's last closing price",
-                     "Draw a line chart of Nvidia stock price",
-                     "Find the key financial metrics of Nvidia",
-                     "Latest business news",)
-
-weather_options = ("How's the weather today?",
-                   "Weather forecast for the next few days"
-                   )
-
-
-# sample questions
-creative_options = ("Tell me a joke about dogs",
-                    "Write a rhyme about Cosmo, the cavapoo and his owner, Andy!",
-                    "Start a fun quiz!",
-                    "Why is the sky blue?",
-                    "Is it morally right to kill mosquitoes?",
-                    "Do you think that I think you have consciousness?",
-                    "Can curiosity kill a cat?"
-                    )
 
 # ---- online search with brave search ---#
 braveSearch = BraveSearch.from_api_key(
@@ -439,7 +416,24 @@ time_tool = StructuredTool.from_function(
 )
 
 
-tools_for_weather = [weather24hr_tool, weather4days_tool, braveSearch_tool]
+# ------appointment -------#
+
+def check_schedule(schedule: str):
+    return pd.read_csv('./data/calendar.csv')
+
+
+schedule_tool = StructuredTool.from_function(
+    func=check_schedule,
+    name='check_schedule',
+    description="Use this function to for questions related to appointments or schedule."
+)
+
+tools_for_schedule = [schedule_tool,
+                      time_tool]
+
+tools_for_weather = [weather24hr_tool,
+                     weather4days_tool,
+                     braveSearch_tool]
 
 tools_for_stock = [stockPrice_tool,
                    financialIndicator_tool,
