@@ -103,8 +103,6 @@ if btn in ["news", "weather", "finance", "schedule"]:
         news_chat_msgs.clear()
         schedule_chat_msgs.clear()
 
-    chat_msg.clear()
-
     with st.sidebar:
         st.session_state.question_button = st.selectbox(label="",
                                                         options=questions,
