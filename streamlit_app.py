@@ -19,30 +19,15 @@ from langchain_core.prompts import (
 )
 from langchain.chains import LLMChain
 import streamlit_antd_components as sac
-
+import datetime
+from comp_ticker_btn_options import *
+from comp_state_chathistory import *
+from comp_sidebar_schedule import *
 # ---------set up page config -------------#
 st.set_page_config(page_title="Cosmo-Chat-Dog",
                    layout="wide", page_icon="🐶")
-news = CNAheadlines("news")
 
-
-# ------- set up session state for question --------#
-st.session_state.question_button = None
-
-# ---- set up chat history ----#
-news_chat_msgs = StreamlitChatMessageHistory(key="news_key")
-news_chat_history_size = 3
-
-financial_chat_msgs = StreamlitChatMessageHistory(key="financial_key")
-financial_chat_history_size = 3
-
-weather_chat_msgs = StreamlitChatMessageHistory(key="weather_key")
-weather_chat_history_size = 3
-
-# ---- set up creative chat history ----#
-creative_chat_msgs = StreamlitChatMessageHistory(key="creative_key")
-creative_chat_history_size = 5
-
+# --- session state and chat history are initialize in component_session_state ----#
 if len(creative_chat_msgs.messages) == 0:
     creative_chat_msgs.clear()
 
@@ -51,29 +36,15 @@ if len(creative_chat_msgs.messages) == 0:
 # st.markdown("<p style='text-align: center; font-size:1.4rem; color:#2ecbf2'>INTELLIGENCE STARTS HERE</p>",
 #            unsafe_allow_html=True)
 
-sac.alert(label='Breaking news...',
-          description=news,
-          size='xs',
-          radius='0px',
-          # icon=True,
-          variant='filled',
-          closable=True,
-          banner=[False, True])
+# -----set up news ticker ------#
+news = CNAheadlines("news")  # utils
+breakingnews(news)  # component_sidebar
 
-btn = sac.segmented(
-    items=[
-        sac.SegmentedItem(label='creative'),
-        sac.SegmentedItem(label='news'),
-        sac.SegmentedItem(label='weather'),
-        sac.SegmentedItem(label='finance'),
-
-    ], align='center', size="xs",
-)
-
+# ----- set up mode button -----#
+btn = mode_button()  # component_sidebar
 
 # --------- llm model and question button ---------#
 llama3p1_70B = "meta-llama/Meta-Llama-3.1-70B-Instruct"
-
 
 # -------- reset selectbox selection ---------#
 
@@ -83,15 +54,24 @@ def reset_selectbox():
     # which is the session_state variable
     st.session_state.selection = None
 
+# --------- set up for questions, chat messages, agent tool when a mode button: btn is clicked -----------#
 
-# --------- factual button clicked -----------#
 
-
-if btn in ["news", "weather", "finance"]:
+if btn in ["news", "weather", "finance", "schedule"]:
     # if st.session_state.factual_mode:
 
     # clear chat messages from creative mode
     creative_chat_msgs.clear()
+
+    if btn == "schedule":
+        questions = schedule_options
+        chat_msg = schedule_chat_msgs
+        chat_history_size = schedule_chat_history_size
+        agent_tools = tools_for_schedule
+        creative_chat_msgs.clear()
+        financial_chat_msgs.clear()
+        weather_chat_msgs.clear()
+        news_chat_msgs.clear()
 
     if btn == "news":
         questions = news_options
@@ -101,6 +81,7 @@ if btn in ["news", "weather", "finance"]:
         creative_chat_msgs.clear()
         financial_chat_msgs.clear()
         weather_chat_msgs.clear()
+        schedule_chat_msgs.clear()
 
     elif btn == "finance":
         questions = financial_options
@@ -110,6 +91,7 @@ if btn in ["news", "weather", "finance"]:
         creative_chat_msgs.clear()
         news_chat_msgs.clear()
         weather_chat_msgs.clear()
+        schedule_chat_msgs.clear()
 
     elif btn == "weather":
         questions = weather_options
@@ -119,6 +101,9 @@ if btn in ["news", "weather", "finance"]:
         creative_chat_msgs.clear()
         financial_chat_msgs.clear()
         news_chat_msgs.clear()
+        schedule_chat_msgs.clear()
+
+    chat_msg.clear()
 
     with st.sidebar:
         st.session_state.question_button = st.selectbox(label="",
@@ -127,6 +112,10 @@ if btn in ["news", "weather", "finance"]:
                                                         key="selection",
                                                         index=None,
                                                         )
+        # setup schedule widgets
+        if btn == "schedule":
+
+            schedule_widgets()
 
     # Set up LLM for factual mode
     llm_factual = HuggingFaceEndpoint(
