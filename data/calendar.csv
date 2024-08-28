@@ -2,3 +2,4 @@ date,start_time,end_time,select_type,title,location
 "(datetime.date(2024, 8, 30), datetime.date(2024, 11, 10))",19:00:00,23:00:00,Birthday Reminder,Kean Wah,Yan Palace
 "(datetime.date(2024, 11, 10),)",00:00:00,00:00:00,Birthday Reminder,Charmaine,
 "(datetime.date(2024, 11, 10), datetime.date(2024, 12, 30))",10:00:00,15:30:00,Events,Charmaine and Wilson's ROM!,
+2024-08-28 21:13:15.433738,00:00:00,00:00:00,Birthday Reminder,Wife,NaN
