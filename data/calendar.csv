@@ -5,3 +5,4 @@ Date,Start time,End time,Appointment Type, Appointment Title, Location
 "(datetime.date(2024, 9, 3), datetime.date(2024, 9, 3))",10:00:00,12:00:00,Work,Informal CET,Level 8
 "(datetime.date(2024, 9, 5),)",14:30:00,16:30:00,Work,Formal BOE,Level 8
 "(datetime.date(2024, 8, 25),)",19:30:00,20:30:00,Friends,Dinner with Cosmo,Tanglin Clubg
+"(datetime.date(2024, 9, 27), datetime.date(2024, 10, 7))",00:00:00,00:00:00,Holidays,Family trip to Japan,Kyoto and Osaka
