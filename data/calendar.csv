@@ -1,3 +1,3 @@
-date,start_time,end_time,select_type,title,location
+Date,Start time,End time,Appointment Type, Appointment Title, Location
 "(datetime.date(2024, 11, 10), datetime.date(2024, 11, 10))",00:00:00,00:00:00,Birthday Reminder,Charmaine's birthday,
 "(datetime.date(2024, 8, 30),)",19:00:00,23:00:00,Birthday Reminder,Kean Wah's birthday,Yan Palace
