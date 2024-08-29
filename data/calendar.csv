@@ -1,3 +1,2 @@
 Date, Start time,End time,Appointment Type, Appointment Title, Location
-"(datetime.date(2024, 8, 29), datetime.date(2024, 8, 31))",00:00:00,00:00:00,Friends,meeting cosmo,
-
+"(datetime.date(2024, 8, 30),)",00:00:00,00:00:00,Work,Meeting with imaginary friends,
