@@ -1,9 +1,2 @@
-Date,Start time,End time,Appointment Type, Appointment Title, Location
-"(datetime.date(2024, 11, 10), datetime.date(2024, 11, 10))",00:00:00,00:00:00,Birthday Reminder,Charmaine's birthday,
-"(datetime.date(2024, 8, 30),)",19:00:00,23:00:00,Birthday Reminder,Kean Wah's birthday,Yan Palace
-"(datetime.date(2024, 8, 29),)",10:00:00,11:00:00,Work,Course review for PFB,Level 6 
-"(datetime.date(2024, 9, 3), datetime.date(2024, 9, 3))",10:00:00,12:00:00,Work,Informal CET,Level 8
-"(datetime.date(2024, 9, 5),)",14:30:00,16:30:00,Work,Formal BOE,Level 8
-"(datetime.date(2024, 8, 25),)",19:30:00,20:30:00,Friends,Dinner with Cosmo,Tanglin Clubg
-"(datetime.date(2024, 9, 27), datetime.date(2024, 10, 7))",00:00:00,00:00:00,Holidays,Family trip to Japan,Kyoto and Osaka
-"(datetime.date(2024, 8, 31),)",00:00:00,00:00:00,Friends,Meeting Kopi,Punggol Road
+Start date, End date, Start time,End time,Appointment Type, Appointment Title, Location
+
