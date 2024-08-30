@@ -57,12 +57,6 @@ def schedule_widgets():
             end_time = st.time_input(
                 ":blue[End time]", datetime.time(00, 00), key='end')
 
-        # confirm_button = st.button(":blue[Pen it]")
-    btn_schedule = schedule_buttons()
-
-    # if confirm_button:
-    if btn_schedule == "Pen it":
-
         start_date = select_date[0]
 
         if len(select_date) == 2:
@@ -77,6 +71,12 @@ def schedule_widgets():
                                  appt_type,
                                  appt_title,
                                  location]
+
+    confirm_button = st.button(":blue[Pen it]")
+    # btn_schedule = schedule_buttons()
+
+    if confirm_button:
+        # if btn_schedule == "Pen it":
 
         # df.to_csv('temp_data.csv', index=False)
         contents = df.to_csv(index=False)
@@ -93,7 +93,10 @@ def schedule_widgets():
 
         st.toast('Pinned in caldendar.', icon="✅")
 
-    if btn_schedule == "View":
+    view_button = st.button(":blue[View it]")
+
+    if view_button:
+        # if btn_schedule == "View":
         response = requests.get(github_url)
         st.write(pd.read_csv(StringIO(response.text)))
 
@@ -114,4 +117,4 @@ def schedule_widgets():
         #                # writer.writerow(["date", "start_time",
         #                #                "end_time", "select_type", "title", "location"])
         #                writer.writerow(
-        #                    [select_date, start_time, end_time, select_type, title, location]
+   
