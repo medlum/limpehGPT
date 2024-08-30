@@ -1,2 +1,2 @@
-start_date, end_date, start_time, end_time, appointment_type, appointment_title, location
+Start Date, End Date, Start Time, End Time, Type, Title, Location
 2024-09-05,2024-09-05,14:30:00,16:45:00,Work,Formal BOE,Level 8
