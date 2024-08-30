@@ -10,7 +10,7 @@ def breakingnews(news):
 
     sac.alert(label='Breaking news...',
               description=news,
-              size='xs',
+              size='md',
               radius='0px',
               # icon=True,
               variant='filled',
@@ -30,7 +30,7 @@ def mode_button():
             sac.SegmentedItem(label='finance'),
             sac.SegmentedItem(label='schedule'),
 
-        ], align='center', size=8, on_change=chat_msg_change, key='btn', divider=False
+        ], align='center', size='xs', on_change=chat_msg_change, key='btn', divider=False
     )
 
 
@@ -38,9 +38,9 @@ def schedule_buttons():
     return sac.buttons([
         sac.ButtonsItem(icon=sac.BsIcon(name='pen', size=20), label="Pen it"),
         sac.ButtonsItem(icon=sac.BsIcon(
-            name='table', size=20), label="View"),
+            name='table', size=20), label="View", ),
 
-    ], align='right', size="sm", index=None, gap='md', radius='md')
+    ], align='right', size="sm", index=2, gap='md', radius='md')
 
 
 # set up options with tryout questions for selectbox at sidebar
