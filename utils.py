@@ -429,7 +429,7 @@ def github_schedule_check(schedule: str):
     github_file_path = 'data/calendar.csv'
     github_url = f'https://raw.githubusercontent.com/{repo_owner}/{repo_name}/main/{github_file_path}'
     response = requests.get(github_url)
-    return pd.read_csv(StringIO(response.text))
+    return pd.read_csv(StringIO(response.text)).to_csv()
 
 
 github_schedulecheck_tool = StructuredTool.from_function(
