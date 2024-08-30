@@ -122,3 +122,4 @@ altair
 st_copy_to_clipboard
 streamlit_option_menu
 streamlit_antd_components
+PyGithub
