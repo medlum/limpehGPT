@@ -78,12 +78,13 @@ def schedule_widgets():
                                  appt_title,
                                  location]
 
-        df.to_csv('temp_data.csv', index=False)
+        # df.to_csv('temp_data.csv', index=False)
+        contents = df.to_csv()
 
         content = repo.get_contents(github_file_path)
 
-        with open('temp_data.csv', 'rb') as f:
-            contents = f.read()
+        # with open('temp_data.csv', 'rb') as f:
+        #    contents = f.read()
 
         repo.update_file(github_file_path,
                          commit_message,
