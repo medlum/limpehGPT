@@ -19,10 +19,9 @@ from langchain_core.prompts import (
 )
 from langchain.chains import LLMChain
 import streamlit_antd_components as sac
-import datetime
-from comp_ticker_btn_options import *
-from comp_state_chathistory import *
-from comp_sidebar_schedule import *
+from news_btn_options_utils import *
+from session_chat_utils import *
+from sidebar_utils import *
 # ---------set up page config -------------#
 st.set_page_config(page_title="Cosmo-Chat-Dog",
                    layout="wide", page_icon="🐶")
@@ -72,6 +71,8 @@ if btn in ["news", "weather", "finance", "schedule"]:
         financial_chat_msgs.clear()
         weather_chat_msgs.clear()
         news_chat_msgs.clear()
+        # chat_msg.add_user_message(
+        #    """Hi there! Give an update on my appointments.""")
 
     if btn == "news":
         questions = news_options
@@ -154,12 +155,15 @@ if btn in ["news", "weather", "finance", "schedule"]:
             f"Ask a question in {btn} mode", key='factual_prompt', on_submit=reset_selectbox)
 
     else:
+        # if chat_msg:
+        #    prompt = chat_msg.messages[0].content
+        # else:
         prompt = st.chat_input(
             f"Ask a question in {btn} mode", key='factual_prompt')
 
-    with st.container(border=True, height=200):
+    with st.container(border=True, height=240):
         if prompt:
-            st.markdown(f":red[{prompt.upper()}]")
+            # st.markdown(f":red[{prompt.upper()}]")
             try:
                 with st.spinner("Grrrr..."):
                     response = executor.invoke(
@@ -270,7 +274,7 @@ if btn == "Creative".lower():
         prompt = st.chat_input(
             f"Ask a question in {btn} mode", key='creative_prompt')
 
-    with st.container(border=True, height=200):
+    with st.container(border=True, height=240):
 
         if prompt:
             st.markdown(f":red[{prompt.upper()}]")
@@ -311,4 +315,3 @@ hide_streamlit_style = """
             """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 st.sidebar.write(footer_html, unsafe_allow_html=True)
-
