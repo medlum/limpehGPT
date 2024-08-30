@@ -14,9 +14,14 @@ from datetime import date
 from langchain_community.utilities import WikipediaAPIWrapper
 from langchain_community.tools import BraveSearch
 from io import BytesIO
+from github import Github
+import requests
+import pandas as pd
+from io import StringIO
 
 # prompt template #
 # Answer each trending story in the order of an image, a headline, a description, a story link, include a '\n' at the end of each one and number each story.
+# Answer questions related to schedule or appointments by checking today's date first and group your answers by appointment type.
 template = """
 You are Cosmo the chatdog who provides informative answers to users.
 
@@ -41,7 +46,7 @@ Answer each local news with a headline, url on newlines and number each news.
 
 Always cite the url where you find the answers on a newline at the end.
 
-Answer each schedule and appointment in a table.
+Answer event or appointment related questions with a number each event on a newline
 
 Answer the following questions as best you can.
 
@@ -418,17 +423,22 @@ time_tool = StructuredTool.from_function(
 
 # ------appointment -------#
 
-def check_schedule(schedule: str):
-    return pd.read_csv('./data/calendar.csv')
+def github_schedule_check(schedule: str):
+    repo_owner = 'medlum'
+    repo_name = 'limpehGPT'
+    github_file_path = 'data/calendar.csv'
+    github_url = f'https://raw.githubusercontent.com/{repo_owner}/{repo_name}/main/{github_file_path}'
+    response = requests.get(github_url)
+    return pd.read_csv(StringIO(response.text))
 
 
-schedule_tool = StructuredTool.from_function(
-    func=check_schedule,
-    name='check_schedule',
-    description="Use this function to for questions related to appointments or schedule."
+github_schedulecheck_tool = StructuredTool.from_function(
+    func=github_schedule_check,
+    name='github_schedule_check',
+    description="This function returns the user's appointments details in pandas dataframe. Use it to check various types of appointments."
 )
 
-tools_for_schedule = [schedule_tool,
+tools_for_schedule = [github_schedulecheck_tool,
                       time_tool]
 
 tools_for_weather = [weather24hr_tool,
