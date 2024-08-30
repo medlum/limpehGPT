@@ -79,7 +79,7 @@ def schedule_widgets():
                                  location]
 
         # df.to_csv('temp_data.csv', index=False)
-        contents = df.to_csv(index=True)
+        contents = df.to_csv(index=False)
 
         content = repo.get_contents(github_file_path)
 
