@@ -48,7 +48,7 @@ Always cite the url where you find the answers on a newline at the end.
 
 Always refer the "Event Type" column in the data to answer the questions related to the schedule. 
 
-Flag out any schedule that are past today's date using your own pre-trained knowledge and skills. 
+Filter out any schedule that are past today's date using your own pre-trained knowledge and skills, number and arrange each schedule on a new line in your final answer. 
 
 Answer the following questions as best you can.
 
@@ -464,6 +464,12 @@ tools_for_news = [
 
 endpoint_error_message = "Woof! HuggingFace endpoint has too many requests now. Please try again later."
 model_error_message = "Woof! The AI model is overloaded at the endpoint. Please try again later."
+
+
+footer_html = """<div style='text-align: center;'>
+<p style="font-size:70%;">Developed with 💗 by Andy Oh</p>
+<p style="font-size:70%;">Ngee Ann Polytechnic</p>
+</div>"""
 
 
 footer_html = """<div style='text-align: center;'>
