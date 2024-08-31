@@ -31,7 +31,7 @@ Write the final answer of stock prices and financial metrics in 2 decimal places
 
 Answer each stock prices and financial metrics in a newline with a number.
 
-For weather forecast of more than one day, group your final answer into a table.
+For weather forecast of more than one day, group your final answer into a table using your own pre-trained skills and knowledge.
 
 For each trending story, answer it in the item order of 
 - image
@@ -46,7 +46,9 @@ Answer each local news with a headline, url on newlines and number each news.
 
 Always cite the url where you find the answers on a newline at the end.
 
-Answer event or appointment related questions with a number each event on a newline
+Always refer the "Event Type" column in the data to answer the questions related to the schedule. 
+
+Flag out any schedule that are past today's date using your own pre-trained knowledge and skills. 
 
 Answer the following questions as best you can.
 
@@ -429,13 +431,13 @@ def github_schedule_check(schedule: str):
     github_file_path = 'data/calendar.csv'
     github_url = f'https://raw.githubusercontent.com/{repo_owner}/{repo_name}/main/{github_file_path}'
     response = requests.get(github_url)
-    return pd.read_csv(StringIO(response.text)).to_csv()
+    return pd.read_csv(StringIO(response.text))
 
 
 github_schedulecheck_tool = StructuredTool.from_function(
     func=github_schedule_check,
     name='github_schedule_check',
-    description="This function returns the user's appointments details in pandas dataframe. Use it to check various types of appointments."
+    description="This function returns the user's schedule. Use it to check various types of schedule."
 )
 
 tools_for_schedule = [github_schedulecheck_tool,
