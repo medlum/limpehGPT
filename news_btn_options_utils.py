@@ -46,8 +46,8 @@ def schedule_buttons():
 
 # set up options with tryout questions for selectbox at sidebar
 
-schedule_options = ("Check my work schedule",
-                    "Check my schedule with friends",
+schedule_options = ("Do I have work meetings coming up?",
+                    "Do I have friends gathering coming up?",
                     "Birthday reminders",
                     "Holiday reminders",
                     "Medical reminders",
@@ -77,3 +77,4 @@ creative_options = ("Tell me a joke about dogs",
                     "Do you think that I think you have consciousness?",
                     "Can curiosity kill a cat?"
                     )
+
