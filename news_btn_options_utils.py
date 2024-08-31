@@ -36,22 +36,22 @@ def mode_button():
 
 def schedule_buttons():
     return sac.buttons([
-        sac.ButtonsItem(icon=sac.BsIcon(name='pen', size=20), label="Pen it"),
+        sac.ButtonsItem(icon=sac.BsIcon(name='pen', size=20),
+                        label="Pen schedule"),
         sac.ButtonsItem(icon=sac.BsIcon(
-            name='table', size=20), label="View", ),
+            name='table', size=20), label="View schedule", ),
 
     ], align='right', size="sm", index=2, gap='md', radius='md')
 
 
 # set up options with tryout questions for selectbox at sidebar
 
-schedule_options = ("Upcoming work meetings",
-                    "Upcoming meeting with friends",
-                    "Events reminders",
+schedule_options = ("Check my work schedule",
+                    "Check my schedule with friends",
                     "Birthday reminders",
-                    "My next holiday",
+                    "Holiday reminders",
                     "Medical reminders",
-                    "Do I have any appointments next week?"
+                    "Appointment next week"
                     )
 
 news_options = ("Local news from mustsharenews.com",
