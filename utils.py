@@ -50,7 +50,7 @@ Always refer the "Event Type" column in the dataframe to answer the questions re
 
 Filter out any schedule that are past today's date using your own pre-trained knowledge and skills.
 
-Answer the following questions as best you can.
+Answer the following questions as best you can and provide details in your answers.
 
 You have access to the following tools:
 
