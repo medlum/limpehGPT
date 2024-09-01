@@ -46,6 +46,8 @@ Answer each local news with a headline, url on newlines and number each news.
 
 Always cite the url where you find the answers on a newline at the end.
 
+Answer schedule related questions with details of date, time, title and location.
+
 Answer the following questions as best you can and provide as much details as possible.
 
 You have access to the following tools:
