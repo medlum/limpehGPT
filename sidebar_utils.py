@@ -83,7 +83,7 @@ def schedule_widgets():
                                  end_date,
                                  start_time,
                                  end_time,
-                                 appt_type,
+                                 appt_type.lower(),
                                  appt_title,
                                  location]
         # convert to csv
@@ -110,3 +110,23 @@ def schedule_widgets():
         github_url = f'https://raw.githubusercontent.com/{repo_owner}/{repo_name}/main/{github_file_path}'
         response = requests.get(github_url)
         st.write(pd.read_csv(StringIO(response.text)))
+
+        # with st.container(height=230):
+        #    st.write("Date : ", select_date)
+        #    st.write("From : ", start_time, "To : ", end_time)
+        #    st.write("Type : ",  appt_type)
+        #    st.write("Title : ", appt_type)
+        #    st.write("Location : ", location)
+
+        # https://stackoverflow.com/questions/76238677/how-to-programmatically-read-and-update-a-csv-file-stored-in-a-github-repo
+        # write data to calendar.csv
+
+        #        data_path = Path.cwd()/"data/calendar.csv"
+        #        if data_path.exists():
+        #            with data_path.open(mode='a', encoding="UTF-8", newline="") as write_file:
+        #                writer = csv.writer(write_file)
+        #                # writer.writerow(["date", "start_time",
+        #                #                "end_time", "select_type", "title", "location"])
+        #                writer.writerow(
+        #                    [select_date, start_time, end_time, select_type, title, location]
+
