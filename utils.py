@@ -46,7 +46,7 @@ Answer each local news with a headline, url on newlines and number each news.
 
 Always cite the url where you find the answers on a newline at the end.
 
-Always refer the "Event Type" column in the dataframe to answer the questions related to schedule, number each schedule and arrange them on a new line in your final answer.
+Always include date, time, title, location and number each schedule in your final answer to questions related to schedule.
 
 Filter out any schedule that are past today's date using your own pre-trained knowledge and skills.
 
