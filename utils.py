@@ -425,7 +425,7 @@ time_tool = StructuredTool.from_function(
 
 # ------appointment -------#
 
-def github_schedule_check(schedule: str):
+def github_schedule_check(event_type: str):
     repo_owner = 'medlum'
     repo_name = 'limpehGPT'
     github_file_path = 'data/calendar.csv'
