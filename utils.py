@@ -437,7 +437,7 @@ def github_schedule_check(schedule: str):
 github_schedulecheck_tool = StructuredTool.from_function(
     func=github_schedule_check,
     name='github_schedule_check',
-    description="This function returns the user's schedule. event_type parameter accepts: 'work', 'friends', 'family', 'medical', 'birthday', 'anniversary', 'event' , 'holiday'"
+    description="This function returns a dataframe of the user's schedule. Use this function to check the user's schedule"
 )
 
 tools_for_schedule = [github_schedulecheck_tool,
