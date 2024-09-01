@@ -50,7 +50,7 @@ Always refer the "Event Type" column in the dataframe to answer the questions re
 
 Filter out any schedule that are past today's date using your own pre-trained knowledge and skills.
 
-Answer the following questions as best you can and provide details in your answers.
+Answer the following questions as best you can.
 
 You have access to the following tools:
 
@@ -425,7 +425,7 @@ time_tool = StructuredTool.from_function(
 
 # ------appointment -------#
 
-def github_schedule_check(event_type: str):
+def github_schedule_check(schedule: str):
     repo_owner = 'medlum'
     repo_name = 'limpehGPT'
     github_file_path = 'data/calendar.csv'
@@ -437,7 +437,7 @@ def github_schedule_check(event_type: str):
 github_schedulecheck_tool = StructuredTool.from_function(
     func=github_schedule_check,
     name='github_schedule_check',
-    description="This function returns the user's schedule. event_type parameter accepts: 'work', 'friends', 'family', 'medical', 'birthday', 'anniversary', 'event' , 'holiday'"
+    description="This function returns the user's schedule."
 )
 
 tools_for_schedule = [github_schedulecheck_tool,
