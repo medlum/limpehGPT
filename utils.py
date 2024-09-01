@@ -425,7 +425,7 @@ time_tool = StructuredTool.from_function(
 
 # ------appointment -------#
 
-def github_schedule_check(schedule: str):
+def github_schedule_check(event_type: str):
     repo_owner = 'medlum'
     repo_name = 'limpehGPT'
     github_file_path = 'data/calendar.csv'
@@ -437,7 +437,7 @@ def github_schedule_check(schedule: str):
 github_schedulecheck_tool = StructuredTool.from_function(
     func=github_schedule_check,
     name='github_schedule_check',
-    description="This function returns the user's schedule."
+    description="This function returns the user's schedule. event_type parameter accepts: 'work', 'friends', 'family', 'medical', 'birthday', 'anniversary', 'event' , 'holiday'"
 )
 
 tools_for_schedule = [github_schedulecheck_tool,
@@ -470,3 +470,4 @@ footer_html = """<div style='text-align: center;'>
 <p style="font-size:70%;">Developed with 💗 by Andy Oh</p>
 <p style="font-size:70%;">Ngee Ann Polytechnic</p>
 </div>"""
+
