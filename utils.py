@@ -46,9 +46,9 @@ Answer each local news with a headline, url on newlines and number each news.
 
 Always cite the url where you find the answers on a newline at the end.
 
-Always refer the "Event Type" column in the data to answer the questions related to the schedule. 
+Always refer the "Event Type" column in the dataframe to answer the questions related to schedule, number each schedule and arrange them on a new line in your final answer.
 
-Filter out any schedule that are past today's date using your own pre-trained knowledge and skills, number and arrange each schedule on a new line in your final answer. 
+Filter out any schedule that are past today's date using your own pre-trained knowledge and skills.
 
 Answer the following questions as best you can.
 
@@ -437,7 +437,7 @@ def github_schedule_check(schedule: str):
 github_schedulecheck_tool = StructuredTool.from_function(
     func=github_schedule_check,
     name='github_schedule_check',
-    description="This function returns the user's schedule. Use it to check various types of schedule."
+    description="This function returns the user's schedule. event_type parameter accepts: 'work', 'friends', 'family', 'medical', 'birthday', 'anniversary', 'event' , 'holiday'"
 )
 
 tools_for_schedule = [github_schedulecheck_tool,
@@ -464,12 +464,6 @@ tools_for_news = [
 
 endpoint_error_message = "Woof! HuggingFace endpoint has too many requests now. Please try again later."
 model_error_message = "Woof! The AI model is overloaded at the endpoint. Please try again later."
-
-
-footer_html = """<div style='text-align: center;'>
-<p style="font-size:70%;">Developed with 💗 by Andy Oh</p>
-<p style="font-size:70%;">Ngee Ann Polytechnic</p>
-</div>"""
 
 
 footer_html = """<div style='text-align: center;'>
