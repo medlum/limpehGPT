@@ -424,7 +424,7 @@ time_tool = StructuredTool.from_function(
 def github_schedule_check(schedule: str):
     repo_owner = 'medlum'
     repo_name = 'limpehGPT'
-    github_file_path = 'data/calendar.csv'
+    github_file_path = 'data/calendar_test.csv'
     github_url = f'https://raw.githubusercontent.com/{repo_owner}/{repo_name}/main/{github_file_path}'
     response = requests.get(github_url)
     return pd.read_csv(StringIO(response.text))
