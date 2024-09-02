@@ -27,6 +27,7 @@ def schedule_widgets():
         appt_type = st.selectbox(":blue[Type]", options=["Work",
                                                          "Friends",
                                                          "Family",
+                                                         "Errand",
                                                          "Medical",
                                                          "Birthday",
                                                          "Anniversary",
