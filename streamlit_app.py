@@ -23,6 +23,7 @@ from news_btn_options_utils import *
 from session_chat_utils import *
 from sidebar_utils import *
 from prompt_template_utils import *
+
 # ---------set up page config -------------#
 st.set_page_config(page_title="Cosmo-Chat-Dog",
                    layout="wide", page_icon="🐶")
@@ -60,68 +61,72 @@ def reset_selectbox():
 # --------- set up for questions, chat messages, agent tool when a mode button: btn is clicked -----------#
 
 
-if btn in ["news", "weather", "finance", "schedule"]:
+# if btn is not creative mode
+# if btn in ["news", "weather", "finance", "schedule"]:
     # if st.session_state.factual_mode:
 
     # clear chat messages from creative mode
+    # creative_chat_msgs.clear()
+
+if btn == "schedule":
+    PROMPT = schedule_prompt
+    questions = schedule_options
+    chat_msg = schedule_chat_msgs
+    chat_history_size = schedule_chat_history_size
+    agent_tools = tools_for_schedule
     creative_chat_msgs.clear()
+    financial_chat_msgs.clear()
+    weather_chat_msgs.clear()
+    news_chat_msgs.clear()
+    # chat_msg.add_user_message(
+    #    """Hi there! Give me an update on my appointments.""")
 
-    if btn == "schedule":
-        PROMPT = schedule_prompt
-        questions = schedule_options
-        chat_msg = schedule_chat_msgs
-        chat_history_size = schedule_chat_history_size
-        agent_tools = tools_for_schedule
-        creative_chat_msgs.clear()
-        financial_chat_msgs.clear()
-        weather_chat_msgs.clear()
-        news_chat_msgs.clear()
-        # chat_msg.add_user_message(
-        #    """Hi there! Give me an update on my appointments.""")
+if btn == "news":
+    PROMPT = news_prompt
+    questions = news_options
+    chat_msg = news_chat_msgs
+    chat_history_size = news_chat_history_size
+    agent_tools = tools_for_news
+    creative_chat_msgs.clear()
+    financial_chat_msgs.clear()
+    weather_chat_msgs.clear()
+    schedule_chat_msgs.clear()
 
-    if btn == "news":
-        PROMPT = news_prompt
-        questions = news_options
-        chat_msg = news_chat_msgs
-        chat_history_size = news_chat_history_size
-        agent_tools = tools_for_news
-        creative_chat_msgs.clear()
-        financial_chat_msgs.clear()
-        weather_chat_msgs.clear()
-        schedule_chat_msgs.clear()
+elif btn == "finance":
+    PROMPT = financial_prompt
+    questions = financial_options
+    chat_msg = financial_chat_msgs
+    chat_history_size = financial_chat_history_size
+    agent_tools = tools_for_stock
+    creative_chat_msgs.clear()
+    news_chat_msgs.clear()
+    weather_chat_msgs.clear()
+    schedule_chat_msgs.clear()
 
-    elif btn == "finance":
-        PROMPT = financial_prompt
-        questions = financial_options
-        chat_msg = financial_chat_msgs
-        chat_history_size = financial_chat_history_size
-        agent_tools = tools_for_stock
-        creative_chat_msgs.clear()
-        news_chat_msgs.clear()
-        weather_chat_msgs.clear()
-        schedule_chat_msgs.clear()
+elif btn == "weather":
+    PROMPT = weather_prompt
+    questions = weather_options
+    chat_msg = weather_chat_msgs
+    chat_history_size = weather_chat_history_size
+    agent_tools = tools_for_weather
+    creative_chat_msgs.clear()
+    financial_chat_msgs.clear()
+    news_chat_msgs.clear()
+    schedule_chat_msgs.clear()
 
-    elif btn == "weather":
-        PROMPT = weather_prompt
-        questions = weather_options
-        chat_msg = weather_chat_msgs
-        chat_history_size = weather_chat_history_size
-        agent_tools = tools_for_weather
-        creative_chat_msgs.clear()
-        financial_chat_msgs.clear()
-        news_chat_msgs.clear()
-        schedule_chat_msgs.clear()
+if btn in ["news", "weather", "finance", "schedule"]:
+
+    creative_chat_msgs.clear()
 
     with st.sidebar:
         st.session_state.question_button = st.selectbox(label="",
                                                         options=questions,
                                                         placeholder=f"Try a question related to {btn}...",
-                                                        key="selection",
+                                                        key="selectbox",
                                                         index=None,
                                                         )
         # setup schedule widgets
         if btn == "schedule":
-
             schedule_widgets()
 
     # Set up LLM for factual mode
@@ -163,9 +168,6 @@ if btn in ["news", "weather", "finance", "schedule"]:
             f"Ask a question in {btn} mode", key='factual_prompt', on_submit=reset_selectbox)
 
     else:
-        # if chat_msg:
-        #    prompt = chat_msg.messages[0].content
-        # else:
         prompt = st.chat_input(
             f"Ask a question in {btn} mode", key='factual_prompt')
 
@@ -195,9 +197,6 @@ if btn in ["news", "weather", "finance", "schedule"]:
 
 # ----- creative button is clicked ------#
 if btn == "Creative".lower():
-    # start_msg = "I am Andy, 52 year old from Singapore"
-    # creative_chat_msgs.add_user_message(start_msg)
-    # st.write(creative_chat_msgs.messages)
 
     news_chat_msgs.clear()
     financial_chat_msgs.clear()
@@ -271,6 +270,7 @@ if btn == "Creative".lower():
         # enable st.chat_input() when selectbox option are selected
         st.session_state.question_button = st.chat_input(
             f"Ask a question in {btn} mode", key='creative_prompt', on_submit=reset_selectbox)
+        st.session_state.question_button = None
     # else wait for chat_input
     else:
         prompt = st.chat_input(
@@ -317,3 +317,4 @@ hide_streamlit_style = """
             """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 st.sidebar.write(footer_html, unsafe_allow_html=True)
+
