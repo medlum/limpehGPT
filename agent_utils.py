@@ -168,8 +168,8 @@ def trending_today(story: str):
 
         for i in range(len(trend_headlines)):
             trending_story[f"headline of story {i+1}"] = f'{trend_headlines[i]}.'
-            trending_story[f"description of story {i+1}"] = trend_descriptions[i]
-            trending_story[f"url of story {i+1}"] = trend_urls[i]
+            trending_story[f"description of story {i+1}"] = f'{trend_descriptions[i]}.'
+            trending_story[f"url of story {i+1}"] = f'{trend_urls[i]}'
             trending_story[f"image of story {i+1}"] = f'<img src={img_urls[i]} width="100" height="100">\n'
 
             # if trend_headlines[i] not in trending_story:
