@@ -84,7 +84,7 @@ def schedule_widgets():
                                  end_date,
                                  start_time,
                                  end_time,
-                                 appt_type.lower(),
+                                 appt_type,
                                  appt_title,
                                  location]
         # convert to csv
