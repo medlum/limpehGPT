@@ -30,18 +30,8 @@ def mode_button():
             sac.SegmentedItem(label='finance'),
             sac.SegmentedItem(label='schedule'),
 
-        ], index=None, align='center', size='xs', on_change=chat_msg_change, key='btn', divider=False
+        ], align='center', size='xs', on_change=chat_msg_change, key='btn', divider=False
     )
-
-
-def schedule_buttons():
-    return sac.buttons([
-        sac.ButtonsItem(icon=sac.BsIcon(name='pen', size=20),
-                        label="Pen schedule"),
-        sac.ButtonsItem(icon=sac.BsIcon(
-            name='table', size=20), label="View schedule", ),
-
-    ], align='right', size="sm", index=2, gap='md', radius='md')
 
 
 # set up options with tryout questions for selectbox at sidebar
@@ -51,7 +41,7 @@ schedule_options = ("Work reminder",
                     "Birthday reminder",
                     "Holiday reminder",
                     "Medical reminder",
-                    "Event reminder"
+                    "Special Event"
                     )
 
 news_options = ("Local news from mustsharenews.com",
