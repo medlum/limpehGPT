@@ -30,7 +30,7 @@ def mode_button():
             sac.SegmentedItem(label='finance'),
             sac.SegmentedItem(label='schedule'),
 
-        ], align='center', size='xs', on_change=chat_msg_change, key='btn', divider=False
+        ], index=None, align='center', size='xs', on_change=chat_msg_change, key='btn', divider=False
     )
 
 
