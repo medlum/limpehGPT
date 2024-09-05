@@ -1,1 +1,18 @@
-{'records': []}
+{'records': [{
+            "date": {
+                "start": "",
+                "end": ""
+            },
+            "day": {
+                "start": "",
+                "end": ""
+            },
+            "time": {
+                "start": "",
+                "end": ""
+            },
+            "type_of_schedule": "",
+            "details": "",
+            "location": ""
+
+        }]}
