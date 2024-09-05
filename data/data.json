@@ -33,6 +33,23 @@
             "type_of_schedule": "Friends",
             "details": "Check out watches with Chris",
             "location": "Takashimaya"
+        },
+        {
+            "date": {
+                "start": "2024-09-27",
+                "end": "2024-10-07"
+            },
+            "day": {
+                "start": "Friday",
+                "end": "Monday"
+            },
+            "time": {
+                "start": "00:00:00",
+                "end": "00:00:00"
+            },
+            "type_of_schedule": "Holiday",
+            "details": "Japan holiday with family",
+            "location": "Osaka and Kyoto"
         }
     ]
 }
