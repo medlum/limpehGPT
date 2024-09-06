@@ -1,0 +1,22 @@
+{
+    "person": {"name": "andy",
+               "age": "51",
+               "gender": "male",
+               },
+
+    "interest": "running, cycling, hike, dogs",
+
+    "health screening results": {"name": "andy",
+                                 "age": "51",
+                                 "gender": "male",
+                                 "screen date": "04-26-2024",
+                                 "lipid profile": {"total cholestrol": 236,
+                                                   "HDL cholesterol": 76,
+                                                   "LDL cholesterol": 148,
+                                                   "Cholesterol/HDL Ratio": 3.1,
+                                                   "Triglycerides": 58
+                                                   }
+
+                                 }
+
+}
