@@ -30,9 +30,10 @@ st.set_page_config(page_title="Cosmo-Chat-Dog",
 
 
 # --- session state and chat history are initialize in component_session_state ----#
-
-if len(creative_chat_msgs.messages) == 0:
-    creative_chat_msgs.clear()
+# health_data = health_check("data")
+# if len(creative_chat_msgs.messages) == 0:
+# creative_chat_msgs
+#    creative_chat_msgs.add_user_message("My name is andy")
 
 
 # ---- App Header: INTELLIGENCE Starts Here ---- #
@@ -50,23 +51,8 @@ btn = mode_button()  # component_sidebar
 # --------- llm model and question button ---------#
 llama3p1_70B = "meta-llama/Meta-Llama-3.1-70B-Instruct"
 
-# -------- reset selectbox selection ---------#
-
-
-def reset_selectbox():
-    # key = 'selection' is found in st.selectbox
-    # which is the session_state variable
-    st.session_state.selection = None
-
 # --------- set up for questions, chat messages, agent tool when a mode button: btn is clicked -----------#
 
-
-# if btn is not creative mode
-# if btn in ["news", "weather", "finance", "schedule"]:
-    # if st.session_state.factual_mode:
-
-    # clear chat messages from creative mode
-    # creative_chat_msgs.clear()
 
 if btn == "schedule":
     PROMPT = schedule_prompt
@@ -78,8 +64,10 @@ if btn == "schedule":
     financial_chat_msgs.clear()
     weather_chat_msgs.clear()
     news_chat_msgs.clear()
+
     # chat_msg.add_user_message(
-    #    """Hi there! Give me an update on my appointments.""")
+    #    """Check my schedule for today""")
+    # st.write(chat_msg.messages[0])
 
 if btn == "news":
     PROMPT = news_prompt
@@ -119,6 +107,7 @@ if btn in ["news", "weather", "finance", "schedule"]:
     creative_chat_msgs.clear()
 
     with st.sidebar:
+        # set key = "selectbox" to clear dropdown question
         st.session_state.question_button = st.selectbox(label="",
                                                         options=questions,
                                                         placeholder=f"Try a question related to {btn}...",
@@ -167,6 +156,9 @@ if btn in ["news", "weather", "finance", "schedule"]:
         st.session_state.question_button = st.chat_input(
             f"Ask a question in {btn} mode", key='factual_prompt', on_submit=reset_selectbox)
 
+    # elif chat_msg.messages is not None:
+    #    prompt = chat_msg.messages[0].content
+
     else:
         prompt = st.chat_input(
             f"Ask a question in {btn} mode", key='factual_prompt')
@@ -208,11 +200,11 @@ if btn == "Creative".lower():
         task="text-generation",
         max_new_tokens=1000,
         do_sample=False,
-        temperature=1.4,
-        repetition_penalty=1.3,
+        temperature=0.2,
+        repetition_penalty=1.1,
         return_full_text=False,
         top_p=0.2,
-        top_k=100,
+        top_k=40,
         huggingfacehub_api_token=st.secrets["huggingfacehub_api_token"]
     )
 
@@ -239,6 +231,17 @@ if btn == "Creative".lower():
             SystemMessage(
                 content="""
             You're a Cosmo a friendly chatdog. Always be helpful and thorough with your answers.
+            You have the following health screening information of Andy, your creator.
+            name: andy
+            age: 51
+            gender:male
+            health screen date : 04-26-2024
+            lipid profile:
+            - total cholestrol: 236
+            - HDL cholesterol: 76
+            - LDL cholesterol: 148,    
+            - Cholesterol/HDL Ratio: 3.1
+            - Triglycerides: 58       
            """
             ),  # The persistent system prompt
             MessagesPlaceholder(
@@ -317,4 +320,3 @@ hide_streamlit_style = """
             """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 st.sidebar.write(footer_html, unsafe_allow_html=True)
-
