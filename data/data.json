@@ -84,6 +84,23 @@
             "type_of_schedule": "Special Event",
             "details": "Chamaine and Wilson's marriage solemnisation",
             "location": "TBC"
+        },
+        {
+            "date": {
+                "start": "2024-10-09",
+                "end": "2024-10-11"
+            },
+            "day": {
+                "start": "Wednesday",
+                "end": "Friday"
+            },
+            "time": {
+                "start": "09:00:00",
+                "end": "17:00:00"
+            },
+            "type_of_schedule": "Work",
+            "details": "SIB class (Part 1)",
+            "location": "TBC"
         }
     ]
 }
