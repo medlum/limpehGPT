@@ -10,7 +10,7 @@ import re
 import altair as alt
 import streamlit as st
 import json
-from datetime import date
+import datetime
 from langchain_community.utilities import WikipediaAPIWrapper
 from langchain_community.tools import BraveSearch
 from io import BytesIO
@@ -221,10 +221,9 @@ mustsharenews_tool = StructuredTool.from_function(
 
 # search image with bravesearch
 
-brave_api_key = "BSANRhMz7xnB_dIA1nzDwO2uaw3cpVA"
-
 
 def query_bravesearch_image(query: str):
+    brave_api_key = "BSANRhMz7xnB_dIA1nzDwO2uaw3cpVA"
     url = "https://api.search.brave.com/res/v1/images/search"
     headers = {
         "X-Subscription-Token": brave_api_key
@@ -233,19 +232,35 @@ def query_bravesearch_image(query: str):
         "q": query,
         "count": 1,
     }
-
     response = requests.get(url, headers=headers, params=params)
+    data = response.json()
 
-    result = response.json()
+    return f'<img src={data["results"][0]["properties"]["url"]}>'
 
-    url_html = {}
 
-    for img in result['results']:
-        if img['title'] not in url_html:
-            url_html[img['title']] = f"<img src={img['thumbnail']['src']}'>"
-        # url_html.append(f"<img src={img['thumbnail']['src']} alt=f'{img['title']}'>")
-
-    return url_html
+# def query_bravesearch_image(query: str):
+#    brave_api_key = "BSANRhMz7xnB_dIA1nzDwO2uaw3cpVA"
+#    url = "https://api.search.brave.com/res/v1/images/search"
+#    headers = {
+#        "X-Subscription-Token": brave_api_key
+#    }
+#    params = {
+#        "q": query,
+#        "count": 1,
+#    }
+#
+#    response = requests.get(url, headers=headers, params=params)
+#
+#    result = response.json()
+#
+#    url_html = {}
+#
+#    for img in result['results']:
+#        if img['title'] not in url_html:
+#            url_html[img['title']] = f"<img src={img['thumbnail']['src']}'>"
+#        # url_html.append(f"<img src={img['thumbnail']['src']} alt=f'{img['title']}'>")
+#
+#    return (url_html)
 
 
 img_search_tool = StructuredTool.from_function(
@@ -254,7 +269,7 @@ img_search_tool = StructuredTool.from_function(
     description="use this function to search for image url and put the url into html."
 )
 
-# view image
+# view image with a url
 
 
 def get_img(url: str):
@@ -348,13 +363,19 @@ financialIndicator_tool = StructuredTool.from_function(
 
 
 def time(text: str) -> str:
-    return str(date.today())
+    weekdays_map = {i: ['Monday', 'Tuesday', 'Wednesday', 'Thursday',
+                        'Friday', 'Saturday', 'Sunday'][i] for i in range(7)}
+
+    today = datetime.datetime.today()
+    day = weekdays_map[today.weekday()]
+
+    return today, day
 
 
 time_tool = StructuredTool.from_function(
     func=time,
     name='today_date',
-    description="Returns todays date, use this for any questions related to knowing todays date.The input should always be an empty string, and this function will always return todays date - any date mathmatics should occur outside this function."
+    description="Return today's date, use this for any questions related to knowing today's date.The input should always be an empty string, and this function will always return todays date "
 )
 
 
@@ -363,11 +384,12 @@ time_tool = StructuredTool.from_function(
 def github_schedule_check(schedule: str):
     repo_owner = 'medlum'
     repo_name = 'limpehGPT'
-    github_file_path = 'data/calendar.csv'
+    github_file_path = 'data/data.json'
     github_url = f'https://raw.githubusercontent.com/{repo_owner}/{repo_name}/main/{github_file_path}'
     response = requests.get(github_url)
-    df = pd.read_csv(StringIO(response.text)).to_csv()
-    return df
+    data = json.dumps(response.text)
+    # df = pd.read_csv(StringIO(response.text)).to_csv()
+    return data
 
 
 github_schedulecheck_tool = StructuredTool.from_function(
@@ -382,11 +404,10 @@ github_schedulecheck_tool = StructuredTool.from_function(
 def health_check(name: str):
     repo_owner = 'medlum'
     repo_name = 'limpehGPT'
-    github_file_path = 'data/health_data.csv'
+    github_file_path = 'data/health_data.json'
     github_url = f'https://raw.githubusercontent.com/{repo_owner}/{repo_name}/main/{github_file_path}'
     response = requests.get(github_url)
-    df = pd.read_csv(StringIO(response.text)).to_csv()
-    return df
+    return str(response.text)
 
 
 health_check_tool = StructuredTool.from_function(
@@ -396,7 +417,7 @@ health_check_tool = StructuredTool.from_function(
 )
 
 tools_for_schedule = [github_schedulecheck_tool,
-                      time_tool, health_check_tool]
+                      time_tool, health_check_tool, img_search_tool]
 
 tools_for_weather = [weather24hr_tool,
                      weather4days_tool,
